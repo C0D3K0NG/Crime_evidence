@@ -12,6 +12,8 @@ export default function NewEvidencePage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const [files, setFiles] = useState<FileList | null>(null);
+
     const [formData, setFormData] = useState({
         caseId: "",
         type: "Physical",
@@ -25,16 +27,34 @@ export default function NewEvidencePage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setFiles(e.target.files);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");
 
         try {
-            const response = await axios.post("/api/v1/evidence", {
-                ...formData,
-                // Ensure date is ISO string for backend if needed, or keeping YYYY-MM-DD
-                collectionDate: new Date(formData.collectionDate).toISOString(),
+            const data = new FormData();
+            data.append("caseId", formData.caseId);
+            data.append("type", formData.type);
+            data.append("description", formData.description);
+            data.append("collectionDate", new Date(formData.collectionDate).toISOString());
+            data.append("location", formData.location);
+            if (formData.officerNotes) data.append("officerNotes", formData.officerNotes);
+
+            if (files) {
+                for (let i = 0; i < files.length; i++) {
+                    data.append("files", files[i]);
+                }
+            }
+
+            const response = await axios.post("/api/v1/evidence", data, {
+                headers: { "Content-Type": "multipart/form-data" },
             });
 
             if (response.data.success) {
@@ -138,6 +158,24 @@ export default function NewEvidencePage() {
                             value={formData.description}
                             onChange={handleChange}
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Attachments (Images, Documents)
+                        </label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="file"
+                                multiple
+                                onChange={handleFileChange}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground hover:file:cursor-pointer"
+                            />
+                            <UploadCloud className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Supported: Images, PDF, Text. Max size: 5MB per file.
+                        </p>
                     </div>
 
                     <div className="space-y-2">

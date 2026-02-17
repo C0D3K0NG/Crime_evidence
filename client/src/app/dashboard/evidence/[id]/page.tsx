@@ -28,6 +28,7 @@ interface EvidenceDetail {
     currentCustodian: { fullName: string };
     locked?: boolean;
     custodyEvents?: any[];
+    files?: { id: string; fileName: string; fileSize: number; mimeType: string }[];
     accessLogs?: any[]; // Placeholder for now
 }
 
@@ -202,6 +203,43 @@ export default function EvidenceDetailPage() {
                             {evidence.description}
                         </p>
                     </div>
+
+                    {/* Attachments Section */}
+                    {evidence.files && evidence.files.length > 0 && (
+                        <div className="mb-6 rounded-xl border border-border bg-card p-6 shadow-sm">
+                            <h3 className="mb-3 text-lg font-semibold text-foreground flex items-center gap-2">
+                                <FileText className="h-5 w-5 text-primary" /> Attached Files
+                            </h3>
+                            <div className="grid gap-2 md:grid-cols-2">
+                                {evidence.files.map((file) => (
+                                    <div key={file.id} className="flex items-center justify-between rounded-md border border-border bg-background p-3">
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-muted">
+                                                <FileText className="h-5 w-5 text-muted-foreground" />
+                                            </div>
+                                            <div className="truncate">
+                                                <p className="truncate text-sm font-medium text-foreground">
+                                                    {file.fileName}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {(file.fileSize / 1024).toFixed(1)} KB
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <a
+                                            href={`/api/v1/evidence/${evidence.id}/files/${file.id}/download`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="ml-2 rounded-md p-2 text-primary hover:bg-primary/10 transition-colors"
+                                            title="Download"
+                                        >
+                                            <ArrowLeft className="h-5 w-5 rotate-[-90deg]" />
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
                         <h2 className="mb-4 flex items-center text-lg font-semibold">

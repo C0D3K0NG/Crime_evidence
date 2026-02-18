@@ -81,7 +81,7 @@ export default function RegisterPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.4 }}
                     transition={{ duration: 2 }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-secondary/20 blur-[150px] rounded-full"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 blur-[150px] rounded-full"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30"></div>
             </div>
@@ -95,8 +95,8 @@ export default function RegisterPage() {
                 {/* Card Container */}
                 <div className="rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl shadow-2xl overflow-hidden relative group">
                     {/* Glowing Border Effect */}
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-secondary/50 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-secondary/50 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
 
                     <div className="p-8 sm:p-10">
                         {/* Header */}
@@ -105,9 +105,9 @@ export default function RegisterPage() {
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
-                                className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-secondary/20 to-transparent border border-secondary/20 shadow-[0_0_15px_rgba(0,240,255,0.15)] mb-6"
+                                className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-transparent border border-primary/20 shadow-[0_0_15px_rgba(255,0,60,0.15)] mb-6"
                             >
-                                <UserPlus className="h-8 w-8 text-secondary" />
+                                <UserPlus className="h-8 w-8 text-primary" />
                             </motion.div>
 
                             <motion.h2
@@ -157,9 +157,9 @@ export default function RegisterPage() {
                                 >
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <motion.div variants={itemVariants}>
-                                            <label className="block text-xs font-mono text-secondary uppercase tracking-wider mb-2">Username</label>
+                                            <label className="block text-xs font-mono text-primary uppercase tracking-wider mb-2">Username</label>
                                             <div className="relative group/input">
-                                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within/input:text-secondary text-gray-500">
+                                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within/input:text-primary text-gray-500">
                                                     <User className="h-4 w-4" />
                                                 </div>
                                                 <input
@@ -168,29 +168,29 @@ export default function RegisterPage() {
                                                     required
                                                     value={formData.username}
                                                     onChange={handleChange}
-                                                    className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white placeholder:text-gray-600 focus:border-secondary focus:bg-white/10 focus:ring-1 focus:ring-secondary focus:outline-none transition-all font-mono text-sm"
+                                                    className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white placeholder:text-gray-600 focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:outline-none transition-all font-mono text-sm"
                                                     placeholder="jdoe"
                                                 />
                                             </div>
                                         </motion.div>
                                         <motion.div variants={itemVariants}>
-                                            <label className="block text-xs font-mono text-secondary uppercase tracking-wider mb-2">Full Name</label>
+                                            <label className="block text-xs font-mono text-primary uppercase tracking-wider mb-2">Full Name</label>
                                             <input
                                                 name="fullName"
                                                 type="text"
                                                 required
                                                 value={formData.fullName}
                                                 onChange={handleChange}
-                                                className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white placeholder:text-gray-600 focus:border-secondary focus:bg-white/10 focus:ring-1 focus:ring-secondary focus:outline-none transition-all font-mono text-sm"
+                                                className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white placeholder:text-gray-600 focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:outline-none transition-all font-mono text-sm"
                                                 placeholder="John Doe"
                                             />
                                         </motion.div>
                                     </div>
 
                                     <motion.div variants={itemVariants}>
-                                        <label className="block text-xs font-mono text-secondary uppercase tracking-wider mb-2">Email</label>
+                                        <label className="block text-xs font-mono text-primary uppercase tracking-wider mb-2">Email</label>
                                         <div className="relative group/input">
-                                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within/input:text-secondary text-gray-500">
+                                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within/input:text-primary text-gray-500">
                                                 <Mail className="h-4 w-4" />
                                             </div>
                                             <input
@@ -199,23 +199,23 @@ export default function RegisterPage() {
                                                 required
                                                 value={formData.email}
                                                 onChange={handleChange}
-                                                className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white placeholder:text-gray-600 focus:border-secondary focus:bg-white/10 focus:ring-1 focus:ring-secondary focus:outline-none transition-all font-mono text-sm"
+                                                className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white placeholder:text-gray-600 focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:outline-none transition-all font-mono text-sm"
                                                 placeholder="john@example.com"
                                             />
                                         </div>
                                     </motion.div>
 
                                     <motion.div variants={itemVariants}>
-                                        <label className="block text-xs font-mono text-secondary uppercase tracking-wider mb-2">Role</label>
+                                        <label className="block text-xs font-mono text-primary uppercase tracking-wider mb-2">Role</label>
                                         <div className="relative group/input">
-                                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within/input:text-secondary text-gray-500">
+                                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within/input:text-primary text-gray-500">
                                                 <Shield className="h-4 w-4" />
                                             </div>
                                             <select
                                                 name="role"
                                                 value={formData.role}
                                                 onChange={handleChange}
-                                                className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white focus:border-secondary focus:bg-white/10 focus:ring-1 focus:ring-secondary focus:outline-none transition-all font-mono text-sm appearance-none"
+                                                className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:outline-none transition-all font-mono text-sm appearance-none"
                                             >
                                                 {roles.map(role => (
                                                     <option key={role.id} value={role.id} className="bg-black text-white">{role.label}</option>
@@ -225,9 +225,9 @@ export default function RegisterPage() {
                                     </motion.div>
 
                                     <motion.div variants={itemVariants}>
-                                        <label className="block text-xs font-mono text-secondary uppercase tracking-wider mb-2">Password</label>
+                                        <label className="block text-xs font-mono text-primary uppercase tracking-wider mb-2">Password</label>
                                         <div className="relative group/input">
-                                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within/input:text-secondary text-gray-500">
+                                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within/input:text-primary text-gray-500">
                                                 <Lock className="h-4 w-4" />
                                             </div>
                                             <input
@@ -236,7 +236,7 @@ export default function RegisterPage() {
                                                 required
                                                 value={formData.password}
                                                 onChange={handleChange}
-                                                className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white placeholder:text-gray-600 focus:border-secondary focus:bg-white/10 focus:ring-1 focus:ring-secondary focus:outline-none transition-all font-mono text-sm"
+                                                className="block w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white placeholder:text-gray-600 focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:outline-none transition-all font-mono text-sm"
                                                 placeholder="••••••••"
                                             />
                                         </div>
@@ -257,12 +257,12 @@ export default function RegisterPage() {
 
                                     <motion.button
                                         variants={itemVariants}
-                                        whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(0,240,255,0.3)" }}
+                                        whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(255,0,60,0.3)" }}
                                         whileTap={{ scale: 0.98 }}
                                         type="submit"
                                         disabled={loading}
                                         className={cn(
-                                            "relative w-full overflow-hidden rounded-lg bg-secondary py-3.5 text-sm font-bold uppercase tracking-widest text-black shadow-lg transition-all hover:bg-white hover:text-black focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed group/btn",
+                                            "relative w-full overflow-hidden rounded-lg bg-primary py-3.5 text-sm font-bold uppercase tracking-widest text-black shadow-lg transition-all hover:bg-white hover:text-black focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed group/btn",
                                             loading && "cursor-wait"
                                         )}
                                     >

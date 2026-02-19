@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { useCrimeBox } from "@/context/CrimeBoxContext";
 import { Plus, Key, Copy, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-export default function CreateCrimeBox() {
+interface CreateCrimeBoxProps {
+  onCreateSuccess?: () => void;
+}
+
+export default function CreateCrimeBox({ onCreateSuccess }: CreateCrimeBoxProps) {
   const { createBox } = useCrimeBox();
   const [name, setName] = useState("");
   const [caseId, setCaseId] = useState("");
@@ -77,14 +80,14 @@ export default function CreateCrimeBox() {
             type="submit"
             className="w-full bg-primary text-black py-3 text-sm font-bold uppercase tracking-widest hover:bg-primary/90 transition-all border border-transparent hover:border-primary hover:shadow-[0_0_15px_rgba(0,255,65,0.3)]"
           >
-            Generate Keys & Initialize
+            Generate Keys &amp; Initialize
           </button>
         </form>
       ) : (
         <div className="space-y-6 animate-in fade-in duration-500">
           <div className="bg-primary/5 p-4 border border-primary text-primary">
             <p className="font-bold text-sm flex items-center gap-2 uppercase tracking-wide">
-              <Check className="h-5 w-5" /> Box Initialized Successfully
+              <Check className="h-5 w-5" /> Box Initialized Successfully. Share these keys.
             </p>
           </div>
 
@@ -126,12 +129,22 @@ export default function CreateCrimeBox() {
             </div>
           </div>
 
-          <button
-            onClick={() => setKeys(null)}
-            className="w-full text-xs text-muted-foreground hover:text-primary uppercase tracking-widest hover:underline pt-2"
-          >
-            Reset Console / Create Another
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setKeys(null)}
+              className="flex-1 text-xs text-muted-foreground hover:text-primary uppercase tracking-widest hover:underline pt-2"
+            >
+              Create Another
+            </button>
+            {onCreateSuccess && (
+              <button
+                onClick={onCreateSuccess}
+                className="flex-1 bg-primary text-black py-2 text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all"
+              >
+                Go to Evidence Vault →
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

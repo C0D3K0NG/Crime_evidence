@@ -55,8 +55,8 @@ router.post(
         const multerReq = req as MulterRequest;
         try {
             // Multipart form data fields are strings, need to parse if JSON
+            const caseId = req.body.caseId?.trim();
             const {
-                caseId,
                 type,
                 description,
                 collectionDate,

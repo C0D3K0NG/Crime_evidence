@@ -5,7 +5,11 @@ import { useCrimeBox } from "@/context/CrimeBoxContext";
 import { LogIn, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function JoinCrimeBox() {
+interface JoinCrimeBoxProps {
+  onJoinSuccess?: () => void;
+}
+
+export default function JoinCrimeBox({ onJoinSuccess }: JoinCrimeBoxProps) {
   const { joinBox } = useCrimeBox();
   const [key, setKey] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,6 +25,7 @@ export default function JoinCrimeBox() {
       setError("Invalid Key or Insufficient Permissions.");
     } else {
       setKey("");
+      onJoinSuccess?.(); // Navigate away after success
     }
     setLoading(false);
   };
@@ -72,7 +77,7 @@ export default function JoinCrimeBox() {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              Decrypt & Enter <ArrowRight className="h-4 w-4" />
+              Decrypt &amp; Enter <ArrowRight className="h-4 w-4" />
             </>
           )}
         </button>

@@ -7,7 +7,63 @@ import { useCrimeBox } from "@/context/CrimeBoxContext";
 import CreateCrimeBox from "@/components/crime-box/CreateCrimeBox";
 import JoinCrimeBox from "@/components/crime-box/JoinCrimeBox";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { Key, Copy, Check, Eye, EyeOff } from "lucide-react";
+
+// ── Head-Officer-only component to reveal stored box keys ─────────────────────
+function ViewBoxKeys({ keys }: { keys: { privateKey: string; publicKey: string } }) {
+    const [revealed, setRevealed] = useState(false);
+    const [copiedPri, setCopiedPri] = useState(false);
+    const [copiedPub, setCopiedPub] = useState(false);
+
+    const copy = (text: string, isPrivate: boolean) => {
+        navigator.clipboard.writeText(text);
+        if (isPrivate) { setCopiedPri(true); setTimeout(() => setCopiedPri(false), 2000); }
+        else { setCopiedPub(true); setTimeout(() => setCopiedPub(false), 2000); }
+    };
+
+    return (
+        <div className="p-6 border border-yellow-500/30 bg-yellow-500/5 flex flex-col justify-between">
+            <div>
+                <h3 className="font-semibold text-yellow-400 uppercase tracking-wide text-sm flex items-center gap-2">
+                    <Key className="h-4 w-4" /> Box Access Keys
+                </h3>
+                <p className="text-xs text-muted-foreground mt-2">Visible only to you (Head Officer). Share with your team.</p>
+            </div>
+            <div className="mt-4 space-y-3">
+                {!revealed ? (
+                    <button
+                        onClick={() => setRevealed(true)}
+                        className="w-full flex items-center justify-center gap-2 border border-yellow-500/40 text-yellow-400 py-2 text-xs font-bold uppercase tracking-widest hover:bg-yellow-500/10 transition-colors"
+                    >
+                        <Eye className="h-3 w-3" /> Reveal Keys
+                    </button>
+                ) : (
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-mono text-primary uppercase w-16 shrink-0">Private</span>
+                            <code className="flex-1 bg-black px-2 py-1.5 text-xs font-mono border border-white/10 text-white truncate">{keys.privateKey}</code>
+                            <button onClick={() => copy(keys.privateKey, true)} className="p-1.5 border border-white/10 hover:border-primary hover:text-primary text-muted-foreground transition-colors">
+                                {copiedPri ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                            </button>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-mono text-muted-foreground uppercase w-16 shrink-0">Public</span>
+                            <code className="flex-1 bg-black px-2 py-1.5 text-xs font-mono border border-white/10 text-muted-foreground truncate">{keys.publicKey}</code>
+                            <button onClick={() => copy(keys.publicKey, false)} className="p-1.5 border border-white/10 hover:border-white/40 text-muted-foreground transition-colors">
+                                {copiedPub ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                            </button>
+                        </div>
+                        <button onClick={() => setRevealed(false)} className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground hover:text-primary pt-1">
+                            <EyeOff className="h-3 w-3" /> Hide
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -17,6 +73,7 @@ export default function DashboardPage() {
         pendingTransfers: 0,
     });
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
     const params = useParams();
     const userId = params.userId as string;
 
@@ -39,61 +96,75 @@ export default function DashboardPage() {
     }, []);
 
     if (activeBox) {
+        // Read stored keys (only available if this user created the box in this session)
+        const storedKeysRaw = typeof window !== "undefined"
+            ? sessionStorage.getItem("active_crime_box_keys")
+            : null;
+        const storedKeys: { privateKey: string; publicKey: string } | null = storedKeysRaw
+            ? JSON.parse(storedKeysRaw)
+            : null;
+
         return (
             <div className="space-y-6">
-                <div className="flex items-center justify-between rounded-lg border border-border bg-card p-6 shadow-sm">
+                {/* Box Header */}
+                <div className="flex items-center justify-between border border-white/10 bg-black/50 backdrop-blur p-6 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary via-primary/50 to-transparent" />
                     <div>
-                        <h1 className="text-2xl font-bold text-foreground">
-                            {activeBox.name}
-                        </h1>
-                        <p className="text-muted-foreground flex items-center gap-2">
+                        <p className="text-xs font-mono text-primary uppercase tracking-widest mb-1">Active Crime Box</p>
+                        <h1 className="text-2xl font-bold text-white">{activeBox.name}</h1>
+                        <p className="text-muted-foreground flex items-center gap-2 mt-1">
                             Case ID: <span className="font-mono text-primary">{activeBox.caseId}</span>
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/10 text-secondary border border-secondary/20 uppercase">
-                                {permission} Access
+                            <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 uppercase font-mono">
+                                {permission}
                             </span>
                         </p>
                     </div>
                     <button
                         onClick={leaveBox}
-                        className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-muted hover:text-foreground"
+                        className="rounded-none border border-white/20 bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground hover:border-destructive hover:text-destructive transition-colors uppercase tracking-wider"
                     >
                         Exit Box
                     </button>
                 </div>
 
-                {/* Evidence Actions */}
+                {/* Action Cards */}
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {permission === "read-write" && (
-                        <div className="p-6 rounded-xl bg-primary/5 border border-primary/20 shadow-sm flex flex-col justify-between">
+                        <div className="p-6 border border-primary/20 bg-primary/5 flex flex-col justify-between">
                             <div>
-                                <h3 className="font-semibold text-primary">Add New Evidence</h3>
+                                <h3 className="font-semibold text-primary uppercase tracking-wide text-sm">Log New Evidence</h3>
                                 <p className="text-sm text-muted-foreground mt-2">
-                                    Register digital or physical evidence to this box.
+                                    Register physical or digital evidence to this case.
                                 </p>
                             </div>
                             <Link
                                 href={`/dashboard/${userId}/evidence/new`}
-                                className="mt-4 block w-full text-center rounded-md bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                                className="mt-4 block w-full text-center bg-primary text-black py-2 text-sm font-bold uppercase tracking-widest hover:bg-primary/90 transition-all"
                             >
                                 Register Evidence
                             </Link>
                         </div>
                     )}
 
-                    <div className="p-6 rounded-xl bg-card border border-border shadow-sm flex flex-col justify-between">
+                    <div className="p-6 border border-white/10 bg-card flex flex-col justify-between">
                         <div>
-                            <h3 className="font-medium text-foreground">View Evidence Log</h3>
+                            <h3 className="font-medium text-white uppercase tracking-wide text-sm">View Evidence Vault</h3>
                             <p className="text-sm text-muted-foreground mt-2">
-                                Browse all items and history in this box.
+                                Browse all shared evidence in this box.
                             </p>
                         </div>
                         <Link
                             href={`/dashboard/${userId}/evidence`}
-                            className="mt-4 block w-full text-center rounded-md border border-input bg-background py-2 text-sm font-medium hover:bg-muted"
+                            className="mt-4 block w-full text-center border border-white/20 text-white py-2 text-sm font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
                         >
-                            View All Evidence
+                            Open Vault →
                         </Link>
                     </div>
+
+                    {/* HEAD OFFICER ONLY: View Box Keys */}
+                    {user?.role === "head_officer" && storedKeys && (
+                        <ViewBoxKeys keys={storedKeys} />
+                    )}
                 </div>
             </div>
         );
@@ -116,8 +187,10 @@ export default function DashboardPage() {
             <div className="grid gap-8 md:grid-cols-2">
                 {/* Left Column: Actions */}
                 <div className="space-y-6">
-                    {user?.role === "head_officer" && <CreateCrimeBox />}
-                    <JoinCrimeBox />
+                    {user?.role === "head_officer" && (
+                        <CreateCrimeBox onCreateSuccess={() => router.push(`/dashboard/${userId}/evidence`)} />
+                    )}
+                    <JoinCrimeBox onJoinSuccess={() => router.push(`/dashboard/${userId}/evidence`)} />
                 </div>
 
                 {/* Right Column: Stats & Overview */}

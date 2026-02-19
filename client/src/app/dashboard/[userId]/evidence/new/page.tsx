@@ -92,16 +92,21 @@ export default function NewEvidencePage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex justify-between">
                                 Case ID
+                                {activeBox && <span className="text-xs text-primary font-mono lowercase tracking-wide">(locked to active box)</span>}
                             </label>
                             <input
                                 name="caseId"
                                 required
                                 placeholder="CASE-2024-001"
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                className={cn(
+                                    "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                    activeBox && "opacity-70 cursor-not-allowed border-primary/50 text-primary font-bold"
+                                )}
                                 value={formData.caseId}
                                 onChange={handleChange}
+                                readOnly={!!activeBox}
                             />
                         </div>
 

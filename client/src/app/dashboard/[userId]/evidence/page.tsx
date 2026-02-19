@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { Plus, Search, FileText, Loader2, ArrowRight } from "lucide-react";
+import { Plus, Search, FileText, Loader2, ArrowRight, Box } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCrimeBox } from "@/context/CrimeBoxContext";
 import { useParams } from "next/navigation";
@@ -60,9 +60,15 @@ export default function EvidenceListPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-white uppercase tracking-tighter">Evidence Ledger</h1>
-                    <p className="text-muted-foreground font-mono text-sm mt-1">
+                    <p className="text-muted-foreground font-mono text-sm mt-1 mb-2">
                         SECURE CHAIN OF CUSTODY :: IMMUTABLE RECORDS
                     </p>
+                    {activeBox && (
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-xs font-mono uppercase tracking-wider">
+                            <Box className="h-3 w-3" />
+                            Secure Vault: {activeBox.name} <span className="text-muted-foreground mx-1">|</span> {activeBox.caseId}
+                        </div>
+                    )}
                 </div>
                 {permission === 'read-write' && (
                     <Link

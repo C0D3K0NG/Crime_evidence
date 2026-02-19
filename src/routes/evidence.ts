@@ -217,6 +217,8 @@ router.get("/", authenticate, async (req: Request, res: Response) => {
         const user = req.user!;
         const canViewAll = ["admin", "auditor"].includes(user.role);
 
+        console.log(`[GET /evidence] User: ${user.username} (${user.role}), CaseID Filter: ${caseId || "NONE"}`);
+
         if (!canViewAll) {
             // Users can only see evidence they collected OR currently hold
             // UNLESS they are querying a specific Crime Box (Case ID).
@@ -226,6 +228,7 @@ router.get("/", authenticate, async (req: Request, res: Response) => {
                 // User is querying a specific box. Allow it if they know the ID.
                 // We strictly filter by this caseId.
                 where.caseId = caseId as string;
+                console.log(`[GET /evidence] Accessing Box: ${caseId} (Allowed)`);
             } else {
                 // User is viewing their personal evidence log (no box context).
                 // Restrict to what they collected or hold.
@@ -246,12 +249,17 @@ router.get("/", authenticate, async (req: Request, res: Response) => {
                 } else {
                     where.OR = accessFilter.OR;
                 }
+                console.log(`[GET /evidence] Personal Log Access (Restricted to Owner/Custodian)`);
             }
+        } else {
+            console.log(`[GET /evidence] Admin Access (View All)`);
         }
 
         const pageNum = Math.max(1, parseInt(page as string, 10));
         const pageSize = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
         const skip = (pageNum - 1) * pageSize;
+
+        console.log(`[GET /evidence] Prisma Where Clause:`, JSON.stringify(where, null, 2));
 
         const [evidence, total] = await Promise.all([
             prisma.evidence.findMany({

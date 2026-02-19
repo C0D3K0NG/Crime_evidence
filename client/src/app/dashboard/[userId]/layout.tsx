@@ -18,6 +18,7 @@ import {
     Rss,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FingerprintLogo } from "@/components/ui/FingerprintLogo";
 
 export default function DashboardLayout({
     children,
@@ -76,6 +77,7 @@ export default function DashboardLayout({
             >
                 <div className="flex h-16 items-center justify-between px-6 border-b border-border">
                     <Link href={`/dashboard/${userId}`} className="flex items-center gap-2">
+                        <FingerprintLogo className="h-8 w-8 text-primary" />
                         <span className="text-lg font-bold text-primary">BlockEvidence</span>
                     </Link>
                     <button

@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import ParticleBackground from "@/components/ui/ParticleBackground";
 import SpotlightEffect from "@/components/ui/SpotlightEffect";
 import GlitchText from "@/components/ui/GlitchText";
+import { FingerprintLogo } from "@/components/ui/FingerprintLogo";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -293,8 +294,8 @@ export default function LandingPage() {
       {/* Navbar Overlay */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between bg-background/0 backdrop-blur-sm">
         <div className="text-xl font-black tracking-tighter text-foreground flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-background">
-            <Shield size={18} strokeWidth={3} />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-primary">
+            <FingerprintLogo className="w-8 h-8" />
           </div>
           BlockEvidence
         </div>

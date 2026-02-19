@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import fingerprintAnimation from "../../components/Fingerprint Complete.json";
+import ParticleBackground from "@/components/ui/ParticleBackground";
+import SpotlightEffect from "@/components/ui/SpotlightEffect";
+import gsap from "gsap";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
@@ -24,6 +27,20 @@ export default function RegisterPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            gsap.from(".gsap-entry", {
+                y: 20,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.05,
+                ease: "power3.out",
+                delay: 0.2
+            });
+        });
+        return () => ctx.revert();
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -66,32 +83,11 @@ export default function RegisterPage() {
 
     return (
         <div className="flex min-h-screen bg-[#0c0f14] text-white font-sans overflow-hidden">
-            {/* Animated Background */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                {/* Dot grid pattern */}
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)",
-                        backgroundSize: "32px 32px",
-                        opacity: 0.04,
-                    }}
-                />
-
-                {/* Slow ambient glows */}
-                <div className="absolute top-0 right-1/4 w-[600px] h-[600px] rounded-full" style={{ background: "rgba(34,197,94,0.06)", filter: "blur(150px)", animation: "drift 22s ease-in-out infinite" }} />
-                <div className="absolute -bottom-[100px] -left-[100px] w-[500px] h-[500px] rounded-full" style={{ background: "rgba(34,197,94,0.04)", filter: "blur(130px)", animation: "drift 18s ease-in-out infinite reverse" }} />
-
-                {/* Floating particles */}
-                <div className="absolute w-2 h-2 rounded-full" style={{ top: "15%", left: "10%", background: "rgba(34,197,94,0.4)", animation: "float 8s ease-in-out infinite", boxShadow: "0 0 6px rgba(34,197,94,0.3)" }} />
-                <div className="absolute w-1.5 h-1.5 rounded-full" style={{ top: "70%", left: "20%", background: "rgba(34,197,94,0.3)", animation: "float 12s ease-in-out infinite 1s" }} />
-                <div className="absolute w-2.5 h-2.5 rounded-full" style={{ top: "30%", right: "15%", background: "rgba(34,197,94,0.25)", animation: "float 10s ease-in-out infinite 2s", boxShadow: "0 0 8px rgba(34,197,94,0.2)" }} />
-                <div className="absolute w-1.5 h-1.5 rounded-full" style={{ top: "80%", right: "25%", background: "rgba(34,197,94,0.35)", animation: "float 9s ease-in-out infinite 3s" }} />
-                <div className="absolute w-2 h-2 rounded-full" style={{ top: "45%", left: "50%", background: "rgba(34,197,94,0.3)", animation: "float 14s ease-in-out infinite 0.5s" }} />
-                <div className="absolute w-1.5 h-1.5 rounded-full" style={{ top: "10%", right: "40%", background: "rgba(34,197,94,0.25)", animation: "float 11s ease-in-out infinite 4s" }} />
-                <div className="absolute w-1.5 h-1.5 rounded-full" style={{ top: "60%", left: "40%", background: "rgba(34,197,94,0.3)", animation: "float 13s ease-in-out infinite 2.5s" }} />
-                <div className="absolute w-2 h-2 rounded-full" style={{ top: "90%", right: "10%", background: "rgba(34,197,94,0.25)", animation: "float 15s ease-in-out infinite 1.5s", boxShadow: "0 0 6px rgba(34,197,94,0.2)" }} />
+            {/* Ambient Background */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <ParticleBackground />
             </div>
+            <SpotlightEffect />
 
             {/* Left Section: Branding + Lottie */}
             <motion.div
@@ -239,15 +235,11 @@ export default function RegisterPage() {
                 <div className="w-full max-w-lg mx-auto space-y-7">
                     {/* Header */}
                     <div className="space-y-3">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                                <UserPlus className="h-5 w-5 text-primary" />
-                            </div>
-                        </div>
-                        <h1 className="text-3xl font-bold tracking-tight font-heading">
+
+                        <h1 className="text-3xl font-bold tracking-tight font-heading gsap-entry">
                             Create Account
                         </h1>
-                        <p className="text-sm text-[#6b7280]">
+                        <p className="text-sm text-[#6b7280] gsap-entry">
                             Sign up to start managing evidence.
                         </p>
                     </div>
@@ -277,7 +269,7 @@ export default function RegisterPage() {
                         ) : (
                             <form className="space-y-4" onSubmit={handleSubmit}>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <motion.div variants={itemVariants}>
+                                    <motion.div variants={itemVariants} className="gsap-entry">
                                         <label className="block text-sm font-medium text-[#9ca3af] mb-1.5">Username</label>
                                         <div className="relative group">
                                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#4b5563] transition-colors group-focus-within:text-primary">
@@ -294,7 +286,7 @@ export default function RegisterPage() {
                                             />
                                         </div>
                                     </motion.div>
-                                    <motion.div variants={itemVariants}>
+                                    <motion.div variants={itemVariants} className="gsap-entry">
                                         <label className="block text-sm font-medium text-[#9ca3af] mb-1.5">Full Name</label>
                                         <input
                                             name="fullName"
@@ -308,7 +300,7 @@ export default function RegisterPage() {
                                     </motion.div>
                                 </div>
 
-                                <motion.div variants={itemVariants}>
+                                <motion.div variants={itemVariants} className="gsap-entry">
                                     <label className="block text-sm font-medium text-[#9ca3af] mb-1.5">Email</label>
                                     <div className="relative group">
                                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#4b5563] transition-colors group-focus-within:text-primary">
@@ -326,7 +318,7 @@ export default function RegisterPage() {
                                     </div>
                                 </motion.div>
 
-                                <motion.div variants={itemVariants}>
+                                <motion.div variants={itemVariants} className="gsap-entry">
                                     <label className="block text-sm font-medium text-[#9ca3af] mb-1.5">Role</label>
                                     <div className="relative group">
                                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#4b5563] transition-colors group-focus-within:text-primary">
@@ -345,7 +337,7 @@ export default function RegisterPage() {
                                     </div>
                                 </motion.div>
 
-                                <motion.div variants={itemVariants}>
+                                <motion.div variants={itemVariants} className="gsap-entry">
                                     <label className="block text-sm font-medium text-[#9ca3af] mb-1.5">Password</label>
                                     <div className="relative group">
                                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#4b5563] transition-colors group-focus-within:text-primary">
@@ -375,30 +367,32 @@ export default function RegisterPage() {
                                     </motion.div>
                                 )}
 
-                                <motion.button
-                                    variants={itemVariants}
-                                    whileHover={{ scale: 1.01 }}
-                                    whileTap={{ scale: 0.99 }}
-                                    type="submit"
-                                    disabled={loading}
-                                    className={cn(
-                                        "w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed group mt-1",
-                                        loading && "cursor-wait"
-                                    )}
-                                >
-                                    <span className="flex items-center justify-center gap-2">
-                                        {loading ? (
-                                            <>
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                                Creating...
-                                            </>
-                                        ) : (
-                                            <>
-                                                Create Account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                                            </>
+                                <div className="gsap-entry mt-1">
+                                    <motion.button
+                                        variants={itemVariants}
+                                        whileHover={{ scale: 1.01 }}
+                                        whileTap={{ scale: 0.99 }}
+                                        type="submit"
+                                        disabled={loading}
+                                        className={cn(
+                                            "w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed group",
+                                            loading && "cursor-wait"
                                         )}
-                                    </span>
-                                </motion.button>
+                                    >
+                                        <span className="flex items-center justify-center gap-2">
+                                            {loading ? (
+                                                <>
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    Creating...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Create Account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                                                </>
+                                            )}
+                                        </span>
+                                    </motion.button>
+                                </div>
                             </form>
                         )}
                     </AnimatePresence>

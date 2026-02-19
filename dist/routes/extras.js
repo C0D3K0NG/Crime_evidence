@@ -1,0 +1,130 @@
+/**
+ * Notifications, Activity Feed, Public Verify, QR Code routes.
+ */
+import { Router } from "express";
+import { authenticate, prisma } from "../middleware/auth.js";
+import QRCode from "qrcode";
+const router = Router();
+// ---------------------------------------------------------------------------
+// GET /api/v1/notifications
+// ---------------------------------------------------------------------------
+router.get("/notifications", authenticate, async (req, res) => {
+    try {
+        const notifications = await prisma.notification.findMany({
+            where: { userId: req.user.id },
+            orderBy: { createdAt: "desc" },
+            take: 50,
+        });
+        const unreadCount = notifications.filter((n) => !n.read).length;
+        res.json({ notifications, unreadCount });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to fetch notifications", details: err.message });
+    }
+});
+router.put("/notifications/read-all", authenticate, async (req, res) => {
+    try {
+        await prisma.notification.updateMany({ where: { userId: req.user.id, read: false }, data: { read: true } });
+        res.json({ success: true });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to mark all read", details: err.message });
+    }
+});
+router.put("/notifications/:id/read", authenticate, async (req, res) => {
+    try {
+        await prisma.notification.update({ where: { id: req.params.id }, data: { read: true } });
+        res.json({ success: true });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to mark notification read", details: err.message });
+    }
+});
+// ---------------------------------------------------------------------------
+// GET /api/v1/activity
+// ---------------------------------------------------------------------------
+router.get("/activity", authenticate, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 30;
+        const [logs, total] = await Promise.all([
+            prisma.activityLog.findMany({
+                orderBy: { createdAt: "desc" },
+                skip: (page - 1) * limit,
+                take: limit,
+                include: { actor: { select: { id: true, username: true, fullName: true, role: true } } },
+            }),
+            prisma.activityLog.count(),
+        ]);
+        res.json({ logs, total, page, totalPages: Math.ceil(total / limit) });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to fetch activity", details: err.message });
+    }
+});
+// ---------------------------------------------------------------------------
+// GET /api/v1/verify/:hash — PUBLIC (no auth)
+// ---------------------------------------------------------------------------
+router.get("/verify/:hash", async (req, res) => {
+    try {
+        const hash = req.params.hash;
+        const evidence = await prisma.evidence.findFirst({
+            where: {
+                OR: [
+                    { fileHash: { equals: hash } },
+                    { files: { some: { sha256Hash: { equals: hash } } } },
+                ],
+            },
+            select: {
+                id: true,
+                caseId: true,
+                type: true,
+                description: true,
+                collectionDate: true,
+                location: true,
+                status: true,
+                createdAt: true,
+                collectedBy: { select: { fullName: true, badgeNumber: true, department: true } },
+                files: { select: { fileName: true, sha256Hash: true, uploadedAt: true, fileSize: true } },
+            },
+        });
+        if (!evidence) {
+            res.status(404).json({ verified: false, message: "No evidence found matching this hash." });
+            return;
+        }
+        res.json({ verified: true, evidence });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Verification failed", details: err.message });
+    }
+});
+// ---------------------------------------------------------------------------
+// GET /api/v1/evidence/:id/qr
+// ---------------------------------------------------------------------------
+router.get("/evidence/:id/qr", authenticate, async (req, res) => {
+    try {
+        const evidenceId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        const evidence = await prisma.evidence.findUnique({
+            where: { id: evidenceId },
+            include: { files: { select: { sha256Hash: true }, take: 1 } },
+        });
+        if (!evidence) {
+            res.status(404).json({ error: "Evidence not found" });
+            return;
+        }
+        const hash = evidence.fileHash || evidence.files[0]?.sha256Hash || evidence.id;
+        const baseUrl = process.env.APP_PUBLIC_URL || "http://localhost:3000";
+        const verifyUrl = `${baseUrl}/verify/${hash}`;
+        const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
+            width: 300,
+            margin: 2,
+            color: { dark: "#22c55e", light: "#0c0f14" },
+        });
+        res.json({ qrDataUrl, verifyUrl, hash });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to generate QR code", details: err.message });
+    }
+});
+export default router;
+//# sourceMappingURL=extras.js.map

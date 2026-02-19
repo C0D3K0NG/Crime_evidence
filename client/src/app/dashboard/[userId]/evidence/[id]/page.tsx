@@ -326,8 +326,278 @@ export default function EvidenceDetailPage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* QR Code Panel */}
+                    <QRPanel evidenceId={id} />
                 </div>
+            </div>
+
+            {/* ── Extra Panels (full width below grid) ── */}
+            <CommentsPanel evidenceId={id} />
+            <LabResultsPanel evidenceId={id} />
+            <AccessRequestPanel evidenceId={id} />
+        </div>
+    );
+}
+
+// ─── QR Code Panel ────────────────────────────────────────────────
+function QRPanel({ evidenceId }: { evidenceId: string }) {
+    const [qrData, setQrData] = useState<{ qrDataUrl: string; verifyUrl: string } | null>(null);
+    const [loading, setLoading] = useState(false);
+    const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    const generate = async () => {
+        setLoading(true);
+        try {
+            const r = await axios.get(`${API}/api/v1/evidence/${evidenceId}/qr`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setQrData(r.data);
+        } catch (e) { console.error(e); }
+        finally { setLoading(false); }
+    };
+
+    return (
+        <div className="rounded-lg border border-border bg-card p-5 shadow-sm space-y-3">
+            <h3 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" /> Verification QR
+            </h3>
+            {qrData ? (
+                <div className="space-y-2">
+                    <img src={qrData.qrDataUrl} alt="QR Code" className="w-32 h-32 rounded-lg" />
+                    <p className="text-xs text-muted-foreground break-all">{qrData.verifyUrl}</p>
+                    <a href={qrData.qrDataUrl} download="evidence-qr.png" className="text-xs text-primary hover:underline">Download QR</a>
+                </div>
+            ) : (
+                <button
+                    onClick={generate}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all disabled:opacity-50"
+                >
+                    {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
+                    Generate QR Code
+                </button>
+            )}
+        </div>
+    );
+}
+
+// ─── Comments Panel ───────────────────────────────────────────────
+function CommentsPanel({ evidenceId }: { evidenceId: string }) {
+    const [comments, setComments] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [content, setContent] = useState("");
+    const [posting, setPosting] = useState(false);
+    const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    useEffect(() => {
+        axios.get(`${API}/api/v1/evidence/${evidenceId}/comments`, {
+            headers: { Authorization: `Bearer ${token}` },
+        }).then(r => setComments(r.data)).catch(console.error).finally(() => setLoading(false));
+    }, [evidenceId]);
+
+    const post = async () => {
+        if (!content.trim()) return;
+        setPosting(true);
+        try {
+            const r = await axios.post(`${API}/api/v1/evidence/${evidenceId}/comments`, { content }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setComments(prev => [...prev, r.data]);
+            setContent("");
+        } catch (e) { console.error(e); }
+        finally { setPosting(false); }
+    };
+
+    return (
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm space-y-4">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" /> Officer Comments
+                <span className="text-xs text-muted-foreground font-normal">({comments.length})</span>
+            </h3>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : comments.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No comments yet.</p>
+            ) : (
+                <div className="space-y-3">
+                    {comments.map((c: any) => (
+                        <div key={c.id} className="rounded-lg border border-border bg-background p-3 space-y-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-foreground">{c.user?.fullName || c.user?.username}</span>
+                                <span className="text-xs text-muted-foreground">{new Date(c.createdAt).toLocaleString()}</span>
+                            </div>
+                            <p className="text-sm text-foreground">{c.content}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
+            <div className="flex gap-2">
+                <textarea
+                    className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none"
+                    rows={2}
+                    placeholder="Add a comment…"
+                    value={content}
+                    onChange={e => setContent(e.target.value)}
+                />
+                <button
+                    onClick={post}
+                    disabled={posting || !content.trim()}
+                    className="px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50 self-end py-2"
+                >
+                    {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Post"}
+                </button>
             </div>
         </div>
     );
 }
+
+// ─── Lab Results Panel ────────────────────────────────────────────
+function LabResultsPanel({ evidenceId }: { evidenceId: string }) {
+    const [results, setResults] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+    const [form, setForm] = useState({ title: "", summary: "", findings: "" });
+    const [posting, setPosting] = useState(false);
+    const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    useEffect(() => {
+        axios.get(`${API}/api/v1/evidence/${evidenceId}/lab-results`, {
+            headers: { Authorization: `Bearer ${token}` },
+        }).then(r => setResults(r.data)).catch(console.error).finally(() => setLoading(false));
+    }, [evidenceId]);
+
+    const submit = async () => {
+        if (!form.title || !form.summary) return;
+        setPosting(true);
+        try {
+            const r = await axios.post(`${API}/api/v1/evidence/${evidenceId}/lab-results`, form, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setResults(prev => [r.data, ...prev]);
+            setShowForm(false);
+            setForm({ title: "", summary: "", findings: "" });
+        } catch (e) { console.error(e); }
+        finally { setPosting(false); }
+    };
+
+    return (
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                    <History className="h-4 w-4 text-primary" /> Lab Results
+                    <span className="text-xs text-muted-foreground font-normal">({results.length})</span>
+                </h3>
+                <button onClick={() => setShowForm(s => !s)} className="text-xs text-primary hover:underline">
+                    {showForm ? "Cancel" : "+ Submit Result"}
+                </button>
+            </div>
+            {showForm && (
+                <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+                    <input className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary" placeholder="Title *" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                    <textarea className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none" rows={2} placeholder="Summary *" value={form.summary} onChange={e => setForm(f => ({ ...f, summary: e.target.value }))} />
+                    <textarea className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none" rows={3} placeholder="Detailed findings (optional)" value={form.findings} onChange={e => setForm(f => ({ ...f, findings: e.target.value }))} />
+                    <button onClick={submit} disabled={posting || !form.title || !form.summary} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50 flex items-center gap-2">
+                        {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Submit
+                    </button>
+                </div>
+            )}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : results.length === 0 && !showForm ? (
+                <p className="text-sm text-muted-foreground">No lab results submitted yet.</p>
+            ) : (
+                <div className="space-y-3">
+                    {results.map((r: any) => (
+                        <div key={r.id} className="rounded-lg border border-border bg-background p-4 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold text-foreground">{r.title}</span>
+                                <span className="text-xs text-muted-foreground">{new Date(r.submittedAt).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-sm text-foreground">{r.summary}</p>
+                            {r.findings && <p className="text-xs text-muted-foreground border-t border-border pt-2 mt-2">{r.findings}</p>}
+                            <p className="text-xs text-muted-foreground">By {r.submittedBy?.fullName}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ─── Access Request Panel ─────────────────────────────────────────
+function AccessRequestPanel({ evidenceId }: { evidenceId: string }) {
+    const [requests, setRequests] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [reason, setReason] = useState("");
+    const [posting, setPosting] = useState(false);
+    const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    useEffect(() => {
+        axios.get(`${API}/api/v1/evidence/${evidenceId}/requests`, {
+            headers: { Authorization: `Bearer ${token}` },
+        }).then(r => setRequests(r.data)).catch(console.error).finally(() => setLoading(false));
+    }, [evidenceId]);
+
+    const submitsRequest = async () => {
+        if (!reason.trim()) return;
+        setPosting(true);
+        try {
+            const r = await axios.post(`${API}/api/v1/evidence/${evidenceId}/requests`, { reason }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setRequests(prev => [r.data, ...prev]);
+            setReason("");
+        } catch (e: any) {
+            alert(e.response?.data?.error || "Request failed");
+        }
+        finally { setPosting(false); }
+    };
+
+    const STATUS_BADGE: Record<string, string> = {
+        pending: "text-amber-400 bg-amber-400/10 border-amber-400/20",
+        approved: "text-green-400 bg-green-400/10 border-green-400/20",
+        denied: "text-red-400 bg-red-400/10 border-red-400/20",
+    };
+
+    return (
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm space-y-4">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" /> Access Requests
+                <span className="text-xs text-muted-foreground font-normal">({requests.length})</span>
+            </h3>
+            {requests.length > 0 && (
+                <div className="space-y-2">
+                    {requests.map((r: any) => (
+                        <div key={r.id} className="rounded-lg border border-border bg-background p-4 space-y-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-foreground">{r.requester?.fullName}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full border capitalize ${STATUS_BADGE[r.status] || ""}`}>{r.status}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{r.reason}</p>
+                            {r.reviewNotes && <p className="text-xs text-muted-foreground italic border-t border-border pt-1 mt-1">"{r.reviewNotes}"</p>}
+                        </div>
+                    ))}
+                </div>
+            )}
+            {!loading && (
+                <div className="flex gap-2">
+                    <input
+                        className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                        placeholder="Reason for requesting access…"
+                        value={reason}
+                        onChange={e => setReason(e.target.value)}
+                    />
+                    <button
+                        onClick={submitsRequest}
+                        disabled={posting || !reason.trim()}
+                        className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50"
+                    >
+                        {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Request"}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
+

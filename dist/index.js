@@ -36,7 +36,7 @@ async function main() {
             break;
         case "api":
             console.log("Starting in API mode (Express REST server)...");
-            startApiServer(3000);
+            startApiServer(3001);
             break;
         default:
             console.error(`Unknown mode: "${mode}". Use --mode mcp or --mode api`);

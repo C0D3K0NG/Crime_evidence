@@ -12,6 +12,10 @@ import {
     User,
     Menu,
     X,
+    FolderOpen,
+    BarChart2,
+    Bell,
+    Rss,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +50,11 @@ export default function DashboardLayout({
     const navigation = [
         { name: "Dashboard", href: `/dashboard/${userId}`, icon: LayoutDashboard },
         { name: "Evidence", href: `/dashboard/${userId}/evidence`, icon: FileText },
+        { name: "Cases", href: `/dashboard/${userId}/cases`, icon: FolderOpen },
         { name: "Chain of Custody", href: `/dashboard/${userId}/custody`, icon: Activity },
+        { name: "Analytics", href: `/dashboard/${userId}/analytics`, icon: BarChart2 },
+        { name: "Activity Feed", href: `/dashboard/${userId}/activity`, icon: Rss },
+        { name: "Notifications", href: `/dashboard/${userId}/notifications`, icon: Bell },
     ];
 
     return (

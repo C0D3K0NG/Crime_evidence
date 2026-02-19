@@ -7,24 +7,43 @@ datasource db {
 }
 
 model User {
-  id                String         @id @default(uuid())
-  username          String         @unique
-  email             String         @unique
+  id                String                 @id @default(uuid())
+  username          String                 @unique
+  email             String                 @unique
   fullName          String
   badgeNumber       String?
   department        String?
   role              String
   passwordHash      String
-  mfaEnabled        Boolean        @default(false)
-  isActive          Boolean        @default(true)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  mfaEnabled        Boolean                @default(false)
+  isActive          Boolean                @default(true)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
   accessLogs        AccessLog[]
-  custodyEventsTo   CustodyEvent[] @relation("ToUser")
-  custodyEventsFrom CustodyEvent[] @relation("FromUser")
-  custodiedEvidence Evidence[]     @relation("CurrentCustodian")
-  collectedEvidence Evidence[]     @relation("CollectedBy")
-  createdBoxes      CrimeBox[]     @relation("BoxCreator")
+  custodyEventsTo   CustodyEvent[]         @relation("ToUser")
+  custodyEventsFrom CustodyEvent[]         @relation("FromUser")
+  custodiedEvidence Evidence[]             @relation("CurrentCustodian")
+  collectedEvidence Evidence[]             @relation("CollectedBy")
+  createdBoxes      CrimeBox[]             @relation("BoxCreator")
+  createdCases      Case[]                 @relation("CaseCreator")
+  comments          EvidenceComment[]
+  accessRequests    EvidenceAccessRequest[] @relation("Requester")
+  reviewedRequests  EvidenceAccessRequest[] @relation("Reviewer")
+  labResults        LabResult[]
+  notifications      Notification[]
+  activityLogs      ActivityLog[]
+}
+
+model Case {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      String     @default("open")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  createdById String
+  createdBy   User       @relation("CaseCreator", fields: [createdById], references: [id])
+  crimeBoxes  CrimeBox[]
 }
 
 model CrimeBox {
@@ -36,10 +55,12 @@ model CrimeBox {
   createdAt   DateTime @default(now())
   createdById String
   createdBy   User     @relation("BoxCreator", fields: [createdById], references: [id])
+  caseRef     Case?    @relation(fields: [caseRefId], references: [id])
+  caseRefId   String?
 }
 
 model Evidence {
-  id                 String         @id @default(uuid())
+  id                 String                  @id @default(uuid())
   caseId             String
   type               String
   description        String
@@ -49,17 +70,23 @@ model Evidence {
   fileHash           String?
   ipfsCid            String?
   status             String
-  locked             Boolean        @default(false)
+  locked             Boolean                 @default(false)
   officerNotes       String?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  retentionDeadline  DateTime?
+  retentionPolicy    String?
+  allowedRoles       String?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
   collectedById      String
   currentCustodianId String
   accessLogs         AccessLog[]
   custodyEvents      CustodyEvent[]
-  currentCustodian   User           @relation("CurrentCustodian", fields: [currentCustodianId], references: [id])
-  collectedBy        User           @relation("CollectedBy", fields: [collectedById], references: [id])
+  currentCustodian   User                    @relation("CurrentCustodian", fields: [currentCustodianId], references: [id])
+  collectedBy        User                    @relation("CollectedBy", fields: [collectedById], references: [id])
   files              EvidenceFile[]
+  comments           EvidenceComment[]
+  accessRequests     EvidenceAccessRequest[]
+  labResults         LabResult[]
 }
 
 model CustodyEvent {
@@ -100,4 +127,67 @@ model EvidenceFile {
   uploadedAt DateTime @default(now())
   evidenceId String
   evidence   Evidence @relation(fields: [evidenceId], references: [id])
+}
+
+model EvidenceComment {
+  id         String   @id @default(uuid())
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  evidenceId String
+  userId     String
+  evidence   Evidence @relation(fields: [evidenceId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model EvidenceAccessRequest {
+  id          String    @id @default(uuid())
+  reason      String
+  status      String    @default("pending")
+  reviewNotes String?
+  reviewedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  evidenceId  String
+  requesterId String
+  reviewerId  String?
+  evidence    Evidence  @relation(fields: [evidenceId], references: [id])
+  requester   User      @relation("Requester", fields: [requesterId], references: [id])
+  reviewer    User?     @relation("Reviewer", fields: [reviewerId], references: [id])
+}
+
+model LabResult {
+  id            String   @id @default(uuid())
+  title         String
+  summary       String
+  findings      String?
+  fileUrl       String?
+  submittedAt   DateTime @default(now())
+  evidenceId    String
+  submittedById String
+  evidence      Evidence @relation(fields: [evidenceId], references: [id])
+  submittedBy   User     @relation(fields: [submittedById], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  actorId     String
+  actorName   String
+  action      String
+  entityType  String
+  entityId    String
+  entityLabel String?
+  createdAt   DateTime @default(now())
+  actor       User     @relation(fields: [actorId], references: [id])
 }

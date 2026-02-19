@@ -11,7 +11,7 @@
     "start:api": "node dist/index.js --mode api",
     "dev": "npx tsx src/index.ts",
     "dev:mcp": "npx tsx src/index.ts --mode mcp",
-    "dev:api": "npx tsx src/index.ts --mode api"
+    "dev:api": "npx tsx watch src/index.ts --mode api"
   },
   "keywords": [
     "mcp",

@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { FolderOpen, Plus, ChevronRight, Circle, Loader2 } from "lucide-react";
+import LottieLoader from "@/components/ui/LottieLoader";
 
 interface Case {
   id: string;
@@ -116,7 +117,7 @@ export default function CasesPage() {
       {/* Cases List */}
       {loading ? (
         <div className="flex items-center justify-center h-40">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <LottieLoader size={120} />
         </div>
       ) : cases.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-muted-foreground space-y-3">

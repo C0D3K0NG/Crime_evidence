@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { Plus, Search, FileText, Loader2, ArrowRight, Box } from "lucide-react";
+import LottieLoader from "@/components/ui/LottieLoader";
 import { cn } from "@/lib/utils";
 import { useCrimeBox } from "@/context/CrimeBoxContext";
 import { useParams } from "next/navigation";
@@ -95,8 +96,7 @@ export default function EvidenceListPage() {
             <div className="rounded-lg border border-border bg-card overflow-hidden">
                 {loading ? (
                     <div className="flex h-40 items-center justify-center text-muted-foreground">
-                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                        Loading evidence...
+                        <LottieLoader size={120} />
                     </div>
                 ) : evidence.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">

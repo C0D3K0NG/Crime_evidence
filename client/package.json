@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.18.1",
     "axios": "^1.13.5",
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.2",
+    "gsap": "^3.14.2",
     "jspdf": "^4.2.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.571.0",

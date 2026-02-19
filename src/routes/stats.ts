@@ -7,24 +7,35 @@ const router = Router();
 router.get("/", authenticate, async (req: Request, res: Response) => {
     try {
         const userId = req.user!.id;
+        const isAdmin = req.user!.role === "admin";
+
+        // Filter condition for non-admins
+        const evidenceFilter = isAdmin ? {} : {
+            OR: [
+                { collectedById: userId },
+                { currentCustodianId: userId }
+            ]
+        };
 
         // Basic counts
         const [totalEvidence, pendingTransfers, totalCases, totalLabs] = await Promise.all([
-            prisma.evidence.count(),
+            prisma.evidence.count({ where: evidenceFilter }),
             prisma.custodyEvent.count({ where: { toUserId: userId, status: "pending" } }),
-            prisma.case.count(),
-            prisma.labResult.count(),
+            prisma.case.count(), // Cases might be public readable or role based, keeping global for now or could filter
+            prisma.labResult.count({ where: isAdmin ? {} : { submittedById: userId } }),
         ]);
 
         // Evidence by status
         const evidenceByStatus = await prisma.evidence.groupBy({
             by: ["status"],
+            where: evidenceFilter,
             _count: { id: true },
         });
 
         // Evidence by type
         const evidenceByType = await prisma.evidence.groupBy({
             by: ["type"],
+            where: evidenceFilter,
             _count: { id: true },
         });
 
@@ -34,7 +45,10 @@ router.get("/", authenticate, async (req: Request, res: Response) => {
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
         const recentEvidence = await prisma.evidence.findMany({
-            where: { createdAt: { gte: sevenDaysAgo } },
+            where: {
+                ...evidenceFilter,
+                createdAt: { gte: sevenDaysAgo }
+            },
             select: { createdAt: true },
             orderBy: { createdAt: "asc" },
         });

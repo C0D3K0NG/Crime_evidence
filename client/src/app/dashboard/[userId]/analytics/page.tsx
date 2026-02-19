@@ -9,6 +9,7 @@ import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from "recharts";
+import LottieLoader from "@/components/ui/LottieLoader";
 
 interface Stats {
   totalEvidence: number;
@@ -52,7 +53,7 @@ export default function AnalyticsPage() {
   }, [token]);
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return <div className="flex items-center justify-center h-64"><LottieLoader size={200} /></div>;
   }
 
   if (!stats) return <p className="text-muted-foreground text-center mt-12">Failed to load analytics.</p>;
@@ -94,7 +95,7 @@ export default function AnalyticsPage() {
         <div className="rounded-xl border border-border bg-card p-5">
           <h3 className="text-sm font-semibold text-foreground mb-4">Evidence Submitted — Last 7 Days</h3>
           <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={stats.evidenceOverTime}>
+            <LineChart data={stats.evidenceOverTime || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} tickFormatter={d => d.slice(5)} />
               <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} allowDecimals={false} />
@@ -108,7 +109,7 @@ export default function AnalyticsPage() {
         <div className="rounded-xl border border-border bg-card p-5">
           <h3 className="text-sm font-semibold text-foreground mb-4">Evidence by Type</h3>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={stats.evidenceByType}>
+            <BarChart data={stats.evidenceByType || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="type" tick={{ fill: "#94a3b8", fontSize: 11 }} />
               <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} allowDecimals={false} />
@@ -123,8 +124,8 @@ export default function AnalyticsPage() {
           <h3 className="text-sm font-semibold text-foreground mb-4">Evidence by Status</h3>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
-              <Pie data={stats.evidenceByStatus} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={80} label={({ status, percent }) => `${status} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
-                {stats.evidenceByStatus.map((_, i) => (
+              <Pie data={stats.evidenceByStatus || []} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={80} label={({ status, percent }: any) => `${status} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                {(stats.evidenceByStatus || []).map((_, i) => (
                   <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                 ))}
               </Pie>

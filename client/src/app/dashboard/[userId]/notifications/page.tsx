@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Bell, Check, CheckCheck, Loader2, Info, AlertTriangle, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import LottieLoader from "@/components/ui/LottieLoader";
 
 interface Notification {
   id: string;
@@ -48,7 +49,7 @@ export default function NotificationsPage() {
       const r = await axios.get(`${API}/api/v1/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNotifications(r.data.notifications);
+      setNotifications(r.data.notifications || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }, [token]);
@@ -100,7 +101,7 @@ export default function NotificationsPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-40"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        <div className="flex items-center justify-center h-40"><LottieLoader size={120} /></div>
       ) : notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-muted-foreground space-y-3">
           <Bell className="h-12 w-12 opacity-30" />

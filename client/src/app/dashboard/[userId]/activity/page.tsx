@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { Rss, Loader2, RefreshCw } from "lucide-react";
+import LottieLoader from "@/components/ui/LottieLoader";
 
 interface ActivityEntry {
   id: string;
@@ -48,8 +49,8 @@ export default function ActivityFeedPage() {
       const r = await axios.get(`${API}/api/v1/activity?page=${p}&limit=20`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setLogs(r.data.logs);
-      setTotalPages(r.data.totalPages);
+      setLogs(r.data.logs || []);
+      setTotalPages(r.data.totalPages || 1);
       setPage(p);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -77,7 +78,7 @@ export default function ActivityFeedPage() {
 
       {loading ? (
         <div className="flex items-center justify-center h-40">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <LottieLoader size={120} />
         </div>
       ) : logs.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-56 text-muted-foreground space-y-3">

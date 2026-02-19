@@ -1,10 +1,4 @@
-/**
- * Express REST API layer for the Crime Evidence Management System.
- *
- * Provides HTTP endpoints that read/write the same `demo_config.json`
- * used by the MCP server. This allows the frontend (and other HTTP
- * consumers) to access and mutate the configuration at runtime.
- */
+
 import express from "express";
 import cors from "cors";
 import { readConfig, writeConfig } from "./server.js";
@@ -12,17 +6,13 @@ import authRoutes from "./routes/auth.js";
 import evidenceRoutes from "./routes/evidence.js";
 import custodyRoutes from "./routes/custody.js";
 import statRoutes from "./routes/stats.js";
-// ---------------------------------------------------------------------------
-// Create Express app
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------
 export function createApp() {
     const app = express();
     // Middleware
     app.use(cors());
     app.use(express.json());
-    // -------------------------------------------------------------------------
-    // GET /api/health — server health check
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
     app.get("/api/health", (_req, res) => {
         res.json({
             status: "ok",

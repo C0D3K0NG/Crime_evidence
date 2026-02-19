@@ -38,110 +38,104 @@ export default function CreateCrimeBox({ onCreateSuccess }: CreateCrimeBoxProps)
   };
 
   return (
-    <div className="border border-white/10 bg-black/50 p-6 backdrop-blur relative overflow-hidden group">
-      {/* Tech Accents */}
-      <div className="absolute top-0 left-0 w-2 h-2 bg-primary"></div>
-      <div className="absolute top-0 right-0 w-2 h-2 bg-primary"></div>
-      <div className="absolute bottom-0 left-0 w-2 h-2 bg-primary"></div>
-      <div className="absolute bottom-0 right-0 w-2 h-2 bg-primary"></div>
-
-      <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
-        <div className="p-2 bg-primary/10 text-primary">
+    <div className="rounded-lg border border-border bg-card p-6">
+      <div className="flex items-center gap-3 mb-6 border-b border-border pb-4">
+        <div className="p-2 rounded-md bg-primary/10 text-primary">
           <Plus className="h-5 w-5" />
         </div>
-        <h2 className="text-lg font-bold text-white uppercase tracking-wider">Initialize New Crime Box</h2>
+        <h2 className="text-lg font-semibold text-foreground">Create Crime Box</h2>
       </div>
 
       {!keys ? (
-        <form onSubmit={handleCreate} className="space-y-6">
+        <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="text-xs font-mono text-primary uppercase tracking-wider">Operation / Box Name</label>
+            <label className="text-sm font-medium text-foreground">Box Name</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. OP-BLUEBIRD-EVIDENCE"
-              className="w-full mt-2 bg-black border border-white/20 px-4 py-3 text-sm text-white placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none font-mono tracking-wide"
+              placeholder="e.g. Operation Bluebird"
+              className="w-full mt-1.5 rounded-md border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </div>
           <div>
-            <label className="text-xs font-mono text-primary uppercase tracking-wider">Case ID Reference</label>
+            <label className="text-sm font-medium text-foreground">Case ID</label>
             <input
               type="text"
               required
               value={caseId}
               onChange={(e) => setCaseId(e.target.value)}
-              placeholder="e.g. CASE-2024-001-X"
-              className="w-full mt-2 bg-black border border-white/20 px-4 py-3 text-sm text-white placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none font-mono tracking-wide"
+              placeholder="e.g. CASE-2024-001"
+              className="w-full mt-1.5 rounded-md border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-primary text-black py-3 text-sm font-bold uppercase tracking-widest hover:bg-primary/90 transition-all border border-transparent hover:border-primary hover:shadow-[0_0_15px_rgba(0,255,65,0.3)]"
+            className="w-full rounded-md bg-primary text-primary-foreground py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
           >
-            Generate Keys &amp; Initialize
+            Create Box
           </button>
         </form>
       ) : (
-        <div className="space-y-6 animate-in fade-in duration-500">
-          <div className="bg-primary/5 p-4 border border-primary text-primary">
-            <p className="font-bold text-sm flex items-center gap-2 uppercase tracking-wide">
-              <Check className="h-5 w-5" /> Box Initialized Successfully. Share these keys.
+        <div className="space-y-4">
+          <div className="rounded-md bg-primary/10 p-3 border border-primary/20 text-primary">
+            <p className="font-medium text-sm flex items-center gap-2">
+              <Check className="h-4 w-4" /> Box created successfully. Share these keys with your team.
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="bg-white/5 p-4 border border-white/10 space-y-2">
-              <label className="text-xs font-mono text-primary flex items-center gap-2 uppercase">
-                <Key className="h-3 w-3" /> Private Key (Read/Write - Officers)
+          <div className="space-y-3">
+            <div className="rounded-md bg-muted/50 p-3 border border-border space-y-1.5">
+              <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                <Key className="h-3 w-3" /> Private Key (Read &amp; Write — Officers)
               </label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 bg-black p-3 text-sm font-mono border border-white/20 text-white truncate shadow-inner">
+                <code className="flex-1 rounded-md bg-background p-2.5 text-xs font-mono border border-border text-foreground truncate">
                   {keys.privateKey}
                 </code>
                 <button
                   onClick={() => copyToClipboard(keys.privateKey, true)}
-                  className="p-3 bg-white/5 hover:bg-primary hover:text-black border border-white/20 hover:border-primary transition-colors text-white"
+                  className="p-2 rounded-md hover:bg-muted border border-border transition-colors text-muted-foreground hover:text-foreground"
                   title="Copy Private Key"
                 >
-                  {copiedPrivate ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copiedPrivate ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
-            <div className="bg-white/5 p-4 border border-white/10 space-y-2">
-              <label className="text-xs font-mono text-white flex items-center gap-2 uppercase">
-                <Key className="h-3 w-3" /> Public Key (Read Only - Legal)
+            <div className="rounded-md bg-muted/50 p-3 border border-border space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Key className="h-3 w-3" /> Public Key (Read Only — Lawyers &amp; Judges)
               </label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 bg-black p-3 text-sm font-mono border border-white/20 text-muted-foreground truncate shadow-inner">
+                <code className="flex-1 rounded-md bg-background p-2.5 text-xs font-mono border border-border text-muted-foreground truncate">
                   {keys.publicKey}
                 </code>
                 <button
                   onClick={() => copyToClipboard(keys.publicKey, false)}
-                  className="p-3 bg-white/5 hover:bg-white/20 border border-white/20 transition-colors text-white"
+                  className="p-2 rounded-md hover:bg-muted border border-border transition-colors text-muted-foreground hover:text-foreground"
                   title="Copy Public Key"
                 >
-                  {copiedPublic ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                  {copiedPublic ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-2">
             <button
               onClick={() => setKeys(null)}
-              className="flex-1 text-xs text-muted-foreground hover:text-primary uppercase tracking-widest hover:underline pt-2"
+              className="flex-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Create Another
             </button>
             {onCreateSuccess && (
               <button
                 onClick={onCreateSuccess}
-                className="flex-1 bg-primary text-black py-2 text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all"
+                className="flex-1 rounded-md bg-primary text-primary-foreground py-2 text-sm font-semibold hover:bg-primary/90 transition-colors"
               >
-                Go to Evidence Vault →
+                Go to Evidence →
               </button>
             )}
           </div>

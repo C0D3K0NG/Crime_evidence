@@ -108,7 +108,7 @@ export default function EvidenceDetailPage() {
             {/* Transfer Modal */}
             {transferModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-xl">
+                    <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-xl">
                         <h3 className="text-lg font-bold text-foreground">Initiate Custody Transfer</h3>
                         <p className="text-sm text-muted-foreground mb-4">
                             Transfer this evidence to another officer or custodian.
@@ -197,7 +197,7 @@ export default function EvidenceDetailPage() {
             <div className="grid gap-6 md:grid-cols-3">
                 {/* Main Info */}
                 <div className="md:col-span-2 space-y-6">
-                    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+                    <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
                         <h2 className="mb-4 flex items-center text-lg font-semibold">
                             <FileText className="mr-2 h-5 w-5 text-primary" />
                             Description & Context
@@ -209,7 +209,7 @@ export default function EvidenceDetailPage() {
 
                     {/* Attachments Section */}
                     {evidence.files && evidence.files.length > 0 && (
-                        <div className="mb-6 rounded-xl border border-border bg-card p-6 shadow-sm">
+                        <div className="mb-6 rounded-lg border border-border bg-card p-6 shadow-sm">
                             <h3 className="mb-3 text-lg font-semibold text-foreground flex items-center gap-2">
                                 <FileText className="h-5 w-5 text-primary" /> Attached Files
                             </h3>
@@ -244,7 +244,7 @@ export default function EvidenceDetailPage() {
                         </div>
                     )}
 
-                    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+                    <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
                         <h2 className="mb-4 flex items-center text-lg font-semibold">
                             <History className="mr-2 h-5 w-5 text-primary" />
                             Chain of Custody Timeline
@@ -291,7 +291,7 @@ export default function EvidenceDetailPage() {
 
                 {/* Sidebar Info */}
                 <div className="space-y-6">
-                    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+                    <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
                         <h3 className="mb-4 font-semibold text-foreground">Metadata</h3>
                         <div className="space-y-4">
                             <div className="flex items-start gap-3">

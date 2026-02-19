@@ -57,16 +57,16 @@ export default function EvidenceListPage() {
 
     return (
         <div className="space-y-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-white uppercase tracking-tighter">Evidence Ledger</h1>
-                    <p className="text-muted-foreground font-mono text-sm mt-1 mb-2">
-                        SECURE CHAIN OF CUSTODY :: IMMUTABLE RECORDS
+                    <h1 className="text-2xl font-bold text-foreground">Evidence</h1>
+                    <p className="text-muted-foreground text-sm mt-1 mb-2">
+                        View and manage all evidence records.
                     </p>
                     {activeBox && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-xs font-mono uppercase tracking-wider">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-xs font-medium rounded-md">
                             <Box className="h-3 w-3" />
-                            Secure Vault: {activeBox.name} <span className="text-muted-foreground mx-1">|</span> {activeBox.caseId}
+                            {activeBox.name} &mdash; {activeBox.caseId}
                         </div>
                     )}
                 </div>
@@ -81,70 +81,70 @@ export default function EvidenceListPage() {
                 )}
             </div>
 
-            <div className="flex items-center bg-black border border-white/20 px-4 py-3 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
-                <Search className="mr-3 h-4 w-4 text-primary" />
+            <div className="flex items-center rounded-lg border border-border bg-card px-4 py-3 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+                <Search className="mr-3 h-4 w-4 text-muted-foreground" />
                 <input
                     type="text"
-                    placeholder="SEARCH DATABASE BY CASE ID OR KEYWORD..."
-                    className="flex-1 bg-transparent text-sm text-white placeholder:text-muted-foreground focus:outline-none font-mono tracking-wide uppercase"
+                    placeholder="Search by case ID, description, or keyword..."
+                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
 
-            <div className="border border-white/10 bg-black/40 backdrop-blur">
+            <div className="rounded-lg border border-border bg-card overflow-hidden">
                 {loading ? (
-                    <div className="flex h-40 items-center justify-center text-primary font-mono animate-pulse">
-                        <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                        ACCESSING SECURE LEDGER...
+                    <div className="flex h-40 items-center justify-center text-muted-foreground">
+                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                        Loading evidence...
                     </div>
                 ) : evidence.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground font-mono">
+                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                         <FileText className="mb-4 h-12 w-12 opacity-20" />
-                        <p>No records found in current sector.</p>
+                        <p>No evidence found.</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-white/5 text-primary border-b border-primary/20 font-mono uppercase text-xs tracking-wider">
+                            <thead className="bg-muted/50 border-b border-border text-xs text-muted-foreground uppercase">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold">Case ID</th>
-                                    <th className="px-6 py-4 font-bold">Type</th>
-                                    <th className="px-6 py-4 font-bold">Description</th>
-                                    <th className="px-6 py-4 font-bold">Status</th>
-                                    <th className="px-6 py-4 font-bold">Custodian</th>
-                                    <th className="px-6 py-4 font-bold text-right">Action</th>
+                                    <th className="px-6 py-3 font-medium">Case ID</th>
+                                    <th className="px-6 py-3 font-medium">Type</th>
+                                    <th className="px-6 py-3 font-medium">Description</th>
+                                    <th className="px-6 py-3 font-medium">Status</th>
+                                    <th className="px-6 py-3 font-medium">Custodian</th>
+                                    <th className="px-6 py-3 font-medium text-right">Action</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
+                            <tbody className="divide-y divide-border">
                                 {evidence.map((item) => (
-                                    <tr key={item.id} className="group hover:bg-primary/5 transition-colors font-mono">
-                                        <td className="px-6 py-4 font-medium text-white">
+                                    <tr key={item.id} className="group hover:bg-muted/50 transition-colors">
+                                        <td className="px-6 py-4 font-medium text-foreground">
                                             {item.caseId}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={cn(
-                                                "inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-wider border",
-                                                item.type === "Physical" && "border-blue-500/50 text-blue-400 bg-blue-500/5",
-                                                item.type === "Digital" && "border-purple-500/50 text-purple-400 bg-purple-500/5",
-                                                item.type === "Testimonial" && "border-amber-500/50 text-amber-400 bg-amber-500/5"
+                                                "inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-md",
+                                                item.type === "Physical" && "bg-blue-500/10 text-blue-400",
+                                                item.type === "Digital" && "bg-purple-500/10 text-purple-400",
+                                                item.type === "Testimonial" && "bg-amber-500/10 text-amber-400"
                                             )}>
                                                 {item.type}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 max-w-xs truncate text-muted-foreground group-hover:text-white transition-colors" title={item.description}>
+                                        <td className="px-6 py-4 max-w-xs truncate text-muted-foreground" title={item.description}>
                                             {item.description}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="uppercase text-xs font-bold text-white">{item.status}</span>
+                                            <span className="text-xs font-medium text-foreground capitalize">{item.status}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-muted-foreground text-xs uppercase">
-                                            {item.currentCustodian?.fullName || "UNKNOWN"}
+                                        <td className="px-6 py-4 text-muted-foreground text-sm">
+                                            {item.currentCustodian?.fullName || "—"}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <Link
                                                 href={`/dashboard/${userId}/evidence/${item.id}`}
-                                                className="inline-flex items-center justify-center p-2 text-primary hover:bg-primary hover:text-black transition-colors"
+                                                className="inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                             >
                                                 <ArrowRight className="h-4 w-4" />
                                             </Link>
@@ -157,21 +157,21 @@ export default function EvidenceListPage() {
                 )}
             </div>
 
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-between text-xs font-mono text-muted-foreground uppercase border-t border-white/10 pt-4">
-                <span>Displaying Page {pagination.page} of {pagination.totalPages}</span>
+            {/* Pagination */}
+            <div className="flex items-center justify-between text-sm text-muted-foreground pt-4">
+                <span>Page {pagination.page} of {pagination.totalPages}</span>
                 <div className="space-x-2">
                     <button
                         disabled={pagination.page <= 1}
                         onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
-                        className="px-4 py-2 border border-white/10 hover:bg-white/5 hover:text-white disabled:opacity-50 transition-colors"
+                        className="px-3 py-1.5 rounded-md border border-border hover:bg-muted disabled:opacity-50 transition-colors text-sm"
                     >
                         Previous
                     </button>
                     <button
                         disabled={pagination.page >= pagination.totalPages}
                         onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-                        className="px-4 py-2 border border-white/10 hover:bg-white/5 hover:text-white disabled:opacity-50 transition-colors"
+                        className="px-3 py-1.5 rounded-md border border-border hover:bg-muted disabled:opacity-50 transition-colors text-sm"
                     >
                         Next
                     </button>

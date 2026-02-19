@@ -22,46 +22,42 @@ export default function JoinCrimeBox({ onJoinSuccess }: JoinCrimeBoxProps) {
 
     const success = await joinBox(key.trim());
     if (!success) {
-      setError("Invalid Key or Insufficient Permissions.");
+      setError("Invalid key or insufficient permissions.");
     } else {
       setKey("");
-      onJoinSuccess?.(); // Navigate away after success
+      onJoinSuccess?.();
     }
     setLoading(false);
   };
 
   return (
-    <div className="h-full flex flex-col justify-center border border-white/10 bg-black/50 p-6 backdrop-blur relative overflow-hidden">
-      {/* Tech Accents */}
-      <div className="absolute top-0 right-0 w-8 h-1 bg-primary"></div>
-      <div className="absolute bottom-0 left-0 w-8 h-1 bg-primary"></div>
-
-      <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
-        <div className="p-2 bg-primary/10 text-primary">
+    <div className="rounded-lg border border-border bg-card p-6">
+      <div className="flex items-center gap-3 mb-4 border-b border-border pb-4">
+        <div className="p-2 rounded-md bg-primary/10 text-primary">
           <LogIn className="h-5 w-5" />
         </div>
-        <h2 className="text-lg font-bold text-white uppercase tracking-wider">Access Secured Vault</h2>
+        <h2 className="text-lg font-semibold text-foreground">Join a Crime Box</h2>
       </div>
 
-      <p className="text-sm text-muted-foreground mb-6 font-mono">
-        Enter your secure cryptographic key to decrypt and access the evidence ledger.
+      <p className="text-sm text-muted-foreground mb-4">
+        Enter a private or public key to access the evidence in a case.
       </p>
 
-      <form onSubmit={handleJoin} className="space-y-6">
+      <form onSubmit={handleJoin} className="space-y-4">
         <div>
           <input
             type="text"
             required
             value={key}
             onChange={(e) => setKey(e.target.value)}
-            placeholder="ENTER PRIVATE OR PUBLIC KEY"
-            className="w-full bg-black border border-white/20 px-4 py-3 text-sm text-white placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none font-mono tracking-wide"
+            placeholder="Enter private or public key"
+            className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </div>
 
         {error && (
-          <div className="p-3 bg-destructive/10 border border-destructive/50 text-destructive text-xs flex items-center gap-2 font-mono">
-            <AlertCircle className="h-3 w-3" /> {error}
+          <div className="rounded-md p-3 bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0" /> {error}
           </div>
         )}
 
@@ -69,7 +65,7 @@ export default function JoinCrimeBox({ onJoinSuccess }: JoinCrimeBoxProps) {
           type="submit"
           disabled={loading || !key}
           className={cn(
-            "w-full flex items-center justify-center gap-2 bg-primary text-black py-3 text-sm font-bold uppercase tracking-widest hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+            "w-full rounded-md flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
             loading && "cursor-wait"
           )}
         >
@@ -77,7 +73,7 @@ export default function JoinCrimeBox({ onJoinSuccess }: JoinCrimeBoxProps) {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              Decrypt &amp; Enter <ArrowRight className="h-4 w-4" />
+              Join Box <ArrowRight className="h-4 w-4" />
             </>
           )}
         </button>

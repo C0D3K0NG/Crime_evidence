@@ -46,70 +46,97 @@
     from { height: var(--radix-accordion-content-height); }
     to { height: 0; }
   }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+    25% { transform: translateY(-20px) translateX(8px); opacity: 0.6; }
+    50% { transform: translateY(-8px) translateX(-5px); opacity: 0.4; }
+    75% { transform: translateY(-25px) translateX(12px); opacity: 0.5; }
+  }
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(30px, -20px); }
+    66% { transform: translate(-20px, 15px); }
+  }
+  @keyframes scan {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translateY(420px); opacity: 1; }
+    60% { opacity: 0; }
+    100% { transform: translateY(420px); opacity: 0; }
+  }
+  @keyframes orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes pulse-ring {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.08); }
+  }
+  @keyframes dash-rotate {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
 }
 
-/*
-  Based on Shadcn UI + Custom "Cyberpunk/Professional" Palette
-  Using Zinc/Slate bases with Violet/Indigo accents.
-*/
+/* Dark Professional Theme — Refined Green Accent */
 :root {
-  /* DFX Theme - Pure Black Background */
-  --background: oklch(0 0 0); /* Pure Black */
-  --foreground: oklch(1 0 0); /* White */
+  --background: oklch(0.13 0.005 260);   /* Very dark blue-grey */
+  --foreground: oklch(0.97 0.005 260);   /* Near-white */
 
-  /* Card - Very Dark Grey */
-  --card: oklch(0.05 0 0);
-  --card-foreground: oklch(1 0 0);
+  --card: oklch(0.17 0.005 260);          /* Slightly lighter than bg */
+  --card-foreground: oklch(0.97 0.005 260);
 
-  --popover: oklch(0.05 0 0);
-  --popover-foreground: oklch(1 0 0);
+  --popover: oklch(0.17 0.005 260);
+  --popover-foreground: oklch(0.97 0.005 260);
 
-  /* Neon Green Accent */
-  --primary: oklch(0.7 0.2 145); /* Neon Green */
-  --primary-foreground: oklch(0 0 0); /* Black text on green */
+  /* Professional emerald — less saturated and warmer than neon */
+  --primary: oklch(0.65 0.16 155);
+  --primary-foreground: oklch(0.05 0 0);
 
-  /* Secondary - Dark Grey/Green tint */
-  --secondary: oklch(0.15 0.05 145);
-  --secondary-foreground: oklch(0.9 0.05 145);
+  --secondary: oklch(0.20 0.02 155);
+  --secondary-foreground: oklch(0.85 0.06 155);
 
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.6 0 0);
+  --muted: oklch(0.20 0.005 260);
+  --muted-foreground: oklch(0.55 0.01 260);
 
-  --accent: oklch(0.15 0.05 145);
-  --accent-foreground: oklch(1 0 0);
+  --accent: oklch(0.20 0.02 155);
+  --accent-foreground: oklch(0.97 0.005 260);
 
-  /* Destructive - Red */
-  --destructive: oklch(0.5 0.2 25);
-  --destructive-foreground: oklch(1 0 0);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.97 0 0);
 
-  --border: oklch(0.2 0 0);
-  --input: oklch(0.2 0 0);
-  --ring: oklch(0.7 0.2 145); /* Match Primary */
+  --border: oklch(0.25 0.005 260);
+  --input: oklch(0.25 0.005 260);
+  --ring: oklch(0.65 0.16 155);
 
-  --radius: 0px; /* Sharp edges for high-tech feel */
+  --radius: 0.5rem;
 }
 
 .dark {
-  /* Match Root */
-  --background: oklch(0 0 0);
-  --foreground: oklch(1 0 0);
-  --card: oklch(0.05 0 0);
-  --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.05 0 0);
-  --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.7 0.2 145); 
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.15 0.05 145);
-  --secondary-foreground: oklch(0.9 0.05 145);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.15 0.05 145);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.5 0.2 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.2 0 0);
-  --input: oklch(0.2 0 0);
-  --ring: oklch(0.7 0.2 145);
+  --background: oklch(0.13 0.005 260);
+  --foreground: oklch(0.97 0.005 260);
+  --card: oklch(0.17 0.005 260);
+  --card-foreground: oklch(0.97 0.005 260);
+  --popover: oklch(0.17 0.005 260);
+  --popover-foreground: oklch(0.97 0.005 260);
+  --primary: oklch(0.65 0.16 155);
+  --primary-foreground: oklch(0.05 0 0);
+  --secondary: oklch(0.20 0.02 155);
+  --secondary-foreground: oklch(0.85 0.06 155);
+  --muted: oklch(0.20 0.005 260);
+  --muted-foreground: oklch(0.55 0.01 260);
+  --accent: oklch(0.20 0.02 155);
+  --accent-foreground: oklch(0.97 0.005 260);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.97 0 0);
+  --border: oklch(0.25 0.005 260);
+  --input: oklch(0.25 0.005 260);
+  --ring: oklch(0.65 0.16 155);
 }
 
 @utility container {
@@ -123,9 +150,6 @@
   }
 }
 
-/*
-  Add Shadcn/UI base styles
-*/
 @layer base {
   * {
     @apply border-border outline-ring/50;

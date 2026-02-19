@@ -23,38 +23,38 @@ function ViewBoxKeys({ keys }: { keys: { privateKey: string; publicKey: string }
     };
 
     return (
-        <div className="p-6 border border-yellow-500/30 bg-yellow-500/5 flex flex-col justify-between">
+        <div className="p-6 rounded-lg border border-amber-500/20 bg-amber-500/5 flex flex-col justify-between">
             <div>
-                <h3 className="font-semibold text-yellow-400 uppercase tracking-wide text-sm flex items-center gap-2">
-                    <Key className="h-4 w-4" /> Box Access Keys
+                <h3 className="font-semibold text-amber-600 dark:text-amber-400 text-sm flex items-center gap-2">
+                    <Key className="h-4 w-4" /> Box Keys
                 </h3>
-                <p className="text-xs text-muted-foreground mt-2">Visible only to you (Head Officer). Share with your team.</p>
+                <p className="text-xs text-muted-foreground mt-2">Only visible to you. Share with your team.</p>
             </div>
             <div className="mt-4 space-y-3">
                 {!revealed ? (
                     <button
                         onClick={() => setRevealed(true)}
-                        className="w-full flex items-center justify-center gap-2 border border-yellow-500/40 text-yellow-400 py-2 text-xs font-bold uppercase tracking-widest hover:bg-yellow-500/10 transition-colors"
+                        className="w-full rounded-md flex items-center justify-center gap-2 border border-amber-500/30 text-amber-600 dark:text-amber-400 py-2 text-sm font-medium hover:bg-amber-500/10 transition-colors"
                     >
-                        <Eye className="h-3 w-3" /> Reveal Keys
+                        <Eye className="h-4 w-4" /> Show Keys
                     </button>
                 ) : (
                     <div className="space-y-2">
-                        <div className="flex items-center gap-1">
-                            <span className="text-[10px] font-mono text-primary uppercase w-16 shrink-0">Private</span>
-                            <code className="flex-1 bg-black px-2 py-1.5 text-xs font-mono border border-white/10 text-white truncate">{keys.privateKey}</code>
-                            <button onClick={() => copy(keys.privateKey, true)} className="p-1.5 border border-white/10 hover:border-primary hover:text-primary text-muted-foreground transition-colors">
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-foreground w-14 shrink-0">Private</span>
+                            <code className="flex-1 rounded-md bg-background px-2 py-1.5 text-xs font-mono border border-border text-foreground truncate">{keys.privateKey}</code>
+                            <button onClick={() => copy(keys.privateKey, true)} className="p-1.5 rounded-md border border-border hover:bg-muted text-muted-foreground transition-colors">
                                 {copiedPri ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
                             </button>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <span className="text-[10px] font-mono text-muted-foreground uppercase w-16 shrink-0">Public</span>
-                            <code className="flex-1 bg-black px-2 py-1.5 text-xs font-mono border border-white/10 text-muted-foreground truncate">{keys.publicKey}</code>
-                            <button onClick={() => copy(keys.publicKey, false)} className="p-1.5 border border-white/10 hover:border-white/40 text-muted-foreground transition-colors">
-                                {copiedPub ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground w-14 shrink-0">Public</span>
+                            <code className="flex-1 rounded-md bg-background px-2 py-1.5 text-xs font-mono border border-border text-muted-foreground truncate">{keys.publicKey}</code>
+                            <button onClick={() => copy(keys.publicKey, false)} className="p-1.5 rounded-md border border-border hover:bg-muted text-muted-foreground transition-colors">
+                                {copiedPub ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
                             </button>
                         </div>
-                        <button onClick={() => setRevealed(false)} className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground hover:text-primary pt-1">
+                        <button onClick={() => setRevealed(false)} className="w-full flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground pt-1">
                             <EyeOff className="h-3 w-3" /> Hide
                         </button>
                     </div>
@@ -107,57 +107,56 @@ export default function DashboardPage() {
         return (
             <div className="space-y-6">
                 {/* Box Header */}
-                <div className="flex items-center justify-between border border-white/10 bg-black/50 backdrop-blur p-6 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary via-primary/50 to-transparent" />
+                <div className="flex items-center justify-between rounded-lg border border-border bg-card p-6">
                     <div>
-                        <p className="text-xs font-mono text-primary uppercase tracking-widest mb-1">Active Crime Box</p>
-                        <h1 className="text-2xl font-bold text-white">{activeBox.name}</h1>
+                        <p className="text-xs text-primary font-medium mb-1">Active Crime Box</p>
+                        <h1 className="text-2xl font-bold text-foreground">{activeBox.name}</h1>
                         <p className="text-muted-foreground flex items-center gap-2 mt-1">
-                            Case ID: <span className="font-mono text-primary">{activeBox.caseId}</span>
-                            <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 uppercase font-mono">
+                            Case ID: <span className="font-medium text-foreground">{activeBox.caseId}</span>
+                            <span className="text-xs px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 capitalize">
                                 {permission}
                             </span>
                         </p>
                     </div>
                     <button
                         onClick={leaveBox}
-                        className="rounded-none border border-white/20 bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground hover:border-destructive hover:text-destructive transition-colors uppercase tracking-wider"
+                        className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:border-destructive hover:text-destructive transition-colors"
                     >
-                        Exit Box
+                        Leave Box
                     </button>
                 </div>
 
                 {/* Action Cards */}
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {permission === "read-write" && (
-                        <div className="p-6 border border-primary/20 bg-primary/5 flex flex-col justify-between">
+                        <div className="p-6 rounded-lg border border-primary/20 bg-primary/5 flex flex-col justify-between">
                             <div>
-                                <h3 className="font-semibold text-primary uppercase tracking-wide text-sm">Log New Evidence</h3>
+                                <h3 className="font-semibold text-primary text-sm">Add New Evidence</h3>
                                 <p className="text-sm text-muted-foreground mt-2">
                                     Register physical or digital evidence to this case.
                                 </p>
                             </div>
                             <Link
                                 href={`/dashboard/${userId}/evidence/new`}
-                                className="mt-4 block w-full text-center bg-primary text-black py-2 text-sm font-bold uppercase tracking-widest hover:bg-primary/90 transition-all"
+                                className="mt-4 block w-full text-center rounded-md bg-primary text-primary-foreground py-2 text-sm font-semibold hover:bg-primary/90 transition-all"
                             >
                                 Register Evidence
                             </Link>
                         </div>
                     )}
 
-                    <div className="p-6 border border-white/10 bg-card flex flex-col justify-between">
+                    <div className="p-6 rounded-lg border border-border bg-card flex flex-col justify-between">
                         <div>
-                            <h3 className="font-medium text-white uppercase tracking-wide text-sm">View Evidence Vault</h3>
+                            <h3 className="font-medium text-foreground text-sm">View Evidence</h3>
                             <p className="text-sm text-muted-foreground mt-2">
-                                Browse all shared evidence in this box.
+                                Browse all evidence in this box.
                             </p>
                         </div>
                         <Link
                             href={`/dashboard/${userId}/evidence`}
-                            className="mt-4 block w-full text-center border border-white/20 text-white py-2 text-sm font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
+                            className="mt-4 block w-full text-center rounded-md border border-border text-foreground py-2 text-sm font-medium hover:bg-muted transition-colors"
                         >
-                            Open Vault →
+                            View Evidence →
                         </Link>
                     </div>
 
@@ -212,9 +211,9 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    {/* Placeholder for Recent Activity */}
-                    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-                        <h3 className="font-medium text-foreground mb-4">Recent System Activity</h3>
+                    {/* Recent Activity */}
+                    <div className="rounded-lg border border-border bg-card p-6">
+                        <h3 className="font-medium text-foreground mb-4">Recent Activity</h3>
                         <div className="space-y-4">
                             {[1, 2, 3].map((i) => (
                                 <div key={i} className="flex items-start gap-3 text-sm">

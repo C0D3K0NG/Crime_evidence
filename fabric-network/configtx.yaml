@@ -1,0 +1,182 @@
+# ---------------------------------------------------------------------------
+# configtx.yaml
+# Defines the channel configuration: organizations, policies, orderer settings,
+# and channel genesis block profile.
+# ---------------------------------------------------------------------------
+
+Organizations:
+  - &OrdererOrg
+    Name: OrdererMSP
+    ID: OrdererMSP
+    MSPDir: organizations/ordererOrganizations/evidence.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+
+  - &PoliceDept
+    Name: PoliceDeptMSP
+    ID: PoliceDeptMSP
+    MSPDir: organizations/peerOrganizations/police.evidence.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('PoliceDeptMSP.admin', 'PoliceDeptMSP.peer', 'PoliceDeptMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('PoliceDeptMSP.admin', 'PoliceDeptMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('PoliceDeptMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('PoliceDeptMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.police.evidence.com
+        Port: 7051
+
+  - &ForensicLab
+    Name: ForensicLabMSP
+    ID: ForensicLabMSP
+    MSPDir: organizations/peerOrganizations/forensic.evidence.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('ForensicLabMSP.admin', 'ForensicLabMSP.peer', 'ForensicLabMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('ForensicLabMSP.admin', 'ForensicLabMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('ForensicLabMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('ForensicLabMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.forensic.evidence.com
+        Port: 9051
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.evidence.com:7050
+  EtcdRaft:
+    Consenters:
+      - Host: orderer.evidence.com
+        Port: 7050
+        ClientTLSCert: organizations/ordererOrganizations/evidence.com/orderers/orderer.evidence.com/tls/server.crt
+        ServerTLSCert: organizations/ordererOrganizations/evidence.com/orderers/orderer.evidence.com/tls/server.crt
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+  Capabilities:
+    <<: *OrdererCapabilities
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  # Genesis block for the orderer system channel (legacy, not used with Fabric 2.5 Channel Participation)
+  TwoOrgsOrdererGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+    Consortiums:
+      EvidenceConsortium:
+        Organizations:
+          - *PoliceDept
+          - *ForensicLab
+
+  # Application channel genesis block — used with Fabric 2.5 osnadmin Channel Participation API
+  # Run: configtxgen -profile TwoOrgsApplicationGenesis -outputBlock genesis.block -channelID evidence-channel
+  TwoOrgsApplicationGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+      Capabilities:
+        <<: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *PoliceDept
+        - *ForensicLab
+      Capabilities:
+        <<: *ApplicationCapabilities
+
+  # Channel transaction (kept for compatibility, used with legacy peer channel create)
+  TwoOrgsChannel:
+    Consortium: EvidenceConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *PoliceDept
+        - *ForensicLab
+      Capabilities:
+        <<: *ApplicationCapabilities

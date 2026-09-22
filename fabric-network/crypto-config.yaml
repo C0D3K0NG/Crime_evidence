@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------------------
+# crypto-config.yaml
+# Defines the organizations, peers, orderers, and users for which the
+# `cryptogen` tool will generate X.509 certificates and keys.
+#
+# Organizations:
+#   - PoliceDeptMSP  (Org1) — 1 peer
+#   - ForensicLabMSP (Org2) — 1 peer
+#   - OrdererMSP     — 1 Raft orderer
+# ---------------------------------------------------------------------------
+
+OrdererOrgs:
+  - Name: Orderer
+    Domain: evidence.com
+    Specs:
+      - Hostname: orderer
+
+PeerOrgs:
+  - Name: PoliceDept
+    Domain: police.evidence.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 2   # User1 (officer), User2 (head_officer)
+
+  - Name: ForensicLab
+    Domain: forensic.evidence.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 2   # User1 (analyst), User2 (custodian)

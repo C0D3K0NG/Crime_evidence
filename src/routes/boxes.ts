@@ -20,7 +20,8 @@ router.post(
   requirePermission("create_crime_box"),
   async (req: Request, res: Response) => {
     try {
-      const { name, caseId } = req.body;
+      const name = req.body.name?.trim();
+      const caseId = req.body.caseId?.trim();
 
       if (!name || !caseId) {
         res.status(400).json({ error: "Name and Case ID are required." });
@@ -92,19 +93,24 @@ router.post("/join", authenticate, async (req: Request, res: Response) => {
     let permission = "read-only";
 
     if (isPrivate) {
-      if (userRole !== "officer" && userRole !== "head_officer") {
+      if (userRole !== "officer" && userRole !== "head_officer" && userRole !== "admin") {
         res.status(403).json({
-          error: "Access Denied. Only Officers can use Private Keys.",
+          error: "Access Denied. Only Officers and Admins can use Private Keys.",
         });
         return;
       }
       permission = "read-write";
     }
 
+    // Sanitize - strip raw keys from the response.
+    // The joiner already knows the key they used; no need to echo them back.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { privateKey: _pk, publicKey: _pub, ...safeBox } = box;
+
     // Return box details + permission
     res.json({
       success: true,
-      box,
+      box: safeBox,
       permission,
       accessType: isPrivate ? "private" : "public",
     });

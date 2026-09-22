@@ -16,7 +16,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Crime Evidence System",
-  description: "Secure Chain of Custody Management",
+  description: "Evidence Management Platform",
 };
 
 export default function RootLayout({

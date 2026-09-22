@@ -102,13 +102,13 @@ export default function CustodyDashboardPage() {
                     </div>
 
                     {incoming.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-border p-8 text-center text-muted-foreground">
+                        <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
                             No incoming transfer requests.
                         </div>
                     ) : (
                         <div className="space-y-3">
                             {incoming.map((transfer) => (
-                                <div key={transfer.id} className="rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-md">
+                                <div key={transfer.id} className="rounded-lg border border-border bg-card p-4 shadow-sm transition-all hover:shadow-md">
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="space-y-1">
                                             <Link href={`/dashboard/${userId}/evidence/${transfer.evidence.id}`} className="font-semibold hover:underline flex items-center gap-2">
@@ -166,13 +166,13 @@ export default function CustodyDashboardPage() {
                     </div>
 
                     {outgoing.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-border p-8 text-center text-muted-foreground">
+                        <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
                             No active outgoing requests.
                         </div>
                     ) : (
                         <div className="space-y-3">
                             {outgoing.map((transfer) => (
-                                <div key={transfer.id} className="rounded-xl border border-border bg-card p-4 shadow-sm opacity-75 hover:opacity-100 transition-opacity">
+                                <div key={transfer.id} className="rounded-lg border border-border bg-card p-4 shadow-sm opacity-75 hover:opacity-100 transition-opacity">
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="space-y-1">
                                             <Link href={`/dashboard/${userId}/evidence/${transfer.evidence.id}`} className="font-semibold hover:underline">

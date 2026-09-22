@@ -45,9 +45,24 @@ export function CrimeBoxProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await axios.post("/api/v1/boxes", { name, caseId });
       if (response.data.success) {
+        const { box } = response.data;
+
+        // Auto-join the creator as read-write
+        setActiveBox(box);
+        setPermission("read-write");
+
+        sessionStorage.setItem("active_crime_box", JSON.stringify(box));
+        sessionStorage.setItem("active_crime_box_perm", "read-write");
+
+        // Persist keys separately so Head Officer can view them after joining
+        sessionStorage.setItem("active_crime_box_keys", JSON.stringify({
+          privateKey: box.privateKey,
+          publicKey: box.publicKey,
+        }));
+
         return {
-          privateKey: response.data.box.privateKey,
-          publicKey: response.data.box.publicKey
+          privateKey: box.privateKey,
+          publicKey: box.publicKey
         };
       }
       return null;
@@ -85,6 +100,7 @@ export function CrimeBoxProvider({ children }: { children: React.ReactNode }) {
     setPermission(null);
     sessionStorage.removeItem("active_crime_box");
     sessionStorage.removeItem("active_crime_box_perm");
+    sessionStorage.removeItem("active_crime_box_keys"); // Clear keys on leave too
   };
 
   return (

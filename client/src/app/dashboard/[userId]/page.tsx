@@ -7,7 +7,63 @@ import { useCrimeBox } from "@/context/CrimeBoxContext";
 import CreateCrimeBox from "@/components/crime-box/CreateCrimeBox";
 import JoinCrimeBox from "@/components/crime-box/JoinCrimeBox";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { Key, Copy, Check, Eye, EyeOff } from "lucide-react";
+
+// ── Head-Officer-only component to reveal stored box keys ─────────────────────
+function ViewBoxKeys({ keys }: { keys: { privateKey: string; publicKey: string } }) {
+    const [revealed, setRevealed] = useState(false);
+    const [copiedPri, setCopiedPri] = useState(false);
+    const [copiedPub, setCopiedPub] = useState(false);
+
+    const copy = (text: string, isPrivate: boolean) => {
+        navigator.clipboard.writeText(text);
+        if (isPrivate) { setCopiedPri(true); setTimeout(() => setCopiedPri(false), 2000); }
+        else { setCopiedPub(true); setTimeout(() => setCopiedPub(false), 2000); }
+    };
+
+    return (
+        <div className="p-6 rounded-lg border border-amber-500/20 bg-amber-500/5 flex flex-col justify-between">
+            <div>
+                <h3 className="font-semibold text-amber-600 dark:text-amber-400 text-sm flex items-center gap-2">
+                    <Key className="h-4 w-4" /> Box Keys
+                </h3>
+                <p className="text-xs text-muted-foreground mt-2">Only visible to you. Share with your team.</p>
+            </div>
+            <div className="mt-4 space-y-3">
+                {!revealed ? (
+                    <button
+                        onClick={() => setRevealed(true)}
+                        className="w-full rounded-md flex items-center justify-center gap-2 border border-amber-500/30 text-amber-600 dark:text-amber-400 py-2 text-sm font-medium hover:bg-amber-500/10 transition-colors"
+                    >
+                        <Eye className="h-4 w-4" /> Show Keys
+                    </button>
+                ) : (
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-foreground w-14 shrink-0">Private</span>
+                            <code className="flex-1 rounded-md bg-background px-2 py-1.5 text-xs font-mono border border-border text-foreground truncate">{keys.privateKey}</code>
+                            <button onClick={() => copy(keys.privateKey, true)} className="p-1.5 rounded-md border border-border hover:bg-muted text-muted-foreground transition-colors">
+                                {copiedPri ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                            </button>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground w-14 shrink-0">Public</span>
+                            <code className="flex-1 rounded-md bg-background px-2 py-1.5 text-xs font-mono border border-border text-muted-foreground truncate">{keys.publicKey}</code>
+                            <button onClick={() => copy(keys.publicKey, false)} className="p-1.5 rounded-md border border-border hover:bg-muted text-muted-foreground transition-colors">
+                                {copiedPub ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                            </button>
+                        </div>
+                        <button onClick={() => setRevealed(false)} className="w-full flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground pt-1">
+                            <EyeOff className="h-3 w-3" /> Hide
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -16,20 +72,24 @@ export default function DashboardPage() {
         totalEvidence: 0,
         pendingTransfers: 0,
     });
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
     const params = useParams();
     const userId = params.userId as string;
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // Mock stats if API fails or for demo
-                const res = await axios.get("/api/v1/stats").catch(() => ({
-                    data: { totalEvidence: 12, pendingTransfers: 3 }
-                }));
-                setStats(res.data);
+                // Fetch stats and recent activity in parallel
+                const [statsRes, activityRes] = await Promise.all([
+                    axios.get("/api/v1/stats").catch(() => ({ data: { totalEvidence: 0, pendingTransfers: 0 } })),
+                    axios.get("/api/v1/activity?limit=3").catch(() => ({ data: { logs: [] } }))
+                ]);
+                setStats(statsRes.data);
+                setRecentActivity(activityRes.data.logs || []);
             } catch (error) {
-                console.error("Failed to fetch dashboard stats", error);
+                console.error("Failed to fetch dashboard data", error);
             } finally {
                 setLoading(false);
             }
@@ -39,61 +99,74 @@ export default function DashboardPage() {
     }, []);
 
     if (activeBox) {
+        // Read stored keys (only available if this user created the box in this session)
+        const storedKeysRaw = typeof window !== "undefined"
+            ? sessionStorage.getItem("active_crime_box_keys")
+            : null;
+        const storedKeys: { privateKey: string; publicKey: string } | null = storedKeysRaw
+            ? JSON.parse(storedKeysRaw)
+            : null;
+
         return (
             <div className="space-y-6">
-                <div className="flex items-center justify-between rounded-lg border border-border bg-card p-6 shadow-sm">
+                {/* Box Header */}
+                <div className="flex items-center justify-between rounded-lg border border-border bg-card p-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-foreground">
-                            {activeBox.name}
-                        </h1>
-                        <p className="text-muted-foreground flex items-center gap-2">
-                            Case ID: <span className="font-mono text-primary">{activeBox.caseId}</span>
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/10 text-secondary border border-secondary/20 uppercase">
-                                {permission} Access
+                        <p className="text-xs text-primary font-medium mb-1">Active Crime Box</p>
+                        <h1 className="text-2xl font-bold text-foreground">{activeBox.name}</h1>
+                        <p className="text-muted-foreground flex items-center gap-2 mt-1">
+                            Case ID: <span className="font-medium text-foreground">{activeBox.caseId}</span>
+                            <span className="text-xs px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 capitalize">
+                                {permission}
                             </span>
                         </p>
                     </div>
                     <button
                         onClick={leaveBox}
-                        className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-muted hover:text-foreground"
+                        className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:border-destructive hover:text-destructive transition-colors"
                     >
-                        Exit Box
+                        Leave Box
                     </button>
                 </div>
 
-                {/* Evidence Actions */}
+                {/* Action Cards */}
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {permission === "read-write" && (
-                        <div className="p-6 rounded-xl bg-primary/5 border border-primary/20 shadow-sm flex flex-col justify-between">
+                        <div className="p-6 rounded-lg border border-primary/20 bg-primary/5 flex flex-col justify-between">
                             <div>
-                                <h3 className="font-semibold text-primary">Add New Evidence</h3>
+                                <h3 className="font-semibold text-primary text-sm">Add New Evidence</h3>
                                 <p className="text-sm text-muted-foreground mt-2">
-                                    Register digital or physical evidence to this box.
+                                    Register physical or digital evidence to this case.
                                 </p>
                             </div>
                             <Link
                                 href={`/dashboard/${userId}/evidence/new`}
-                                className="mt-4 block w-full text-center rounded-md bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                                className="mt-4 block w-full text-center rounded-md bg-primary text-primary-foreground py-2 text-sm font-semibold hover:bg-primary/90 transition-all"
                             >
                                 Register Evidence
                             </Link>
                         </div>
                     )}
 
-                    <div className="p-6 rounded-xl bg-card border border-border shadow-sm flex flex-col justify-between">
+                    <div className="p-6 rounded-lg border border-border bg-card flex flex-col justify-between">
                         <div>
-                            <h3 className="font-medium text-foreground">View Evidence Log</h3>
+                            <h3 className="font-medium text-foreground text-sm">View Evidence</h3>
                             <p className="text-sm text-muted-foreground mt-2">
-                                Browse all items and history in this box.
+                                Browse all evidence in this box.
                             </p>
                         </div>
                         <Link
                             href={`/dashboard/${userId}/evidence`}
-                            className="mt-4 block w-full text-center rounded-md border border-input bg-background py-2 text-sm font-medium hover:bg-muted"
+                            className="mt-4 block w-full text-center rounded-md border border-border text-foreground py-2 text-sm font-medium hover:bg-muted transition-colors"
                         >
-                            View All Evidence
+                            View Evidence →
                         </Link>
                     </div>
+
+                    {/* HEAD OFFICER ONLY: View Box Keys */}
+                    {user?.role === "head_officer" && storedKeys && (
+                        <ViewBoxKeys keys={storedKeys} />
+                    )}
                 </div>
             </div>
         );
@@ -103,7 +176,7 @@ export default function DashboardPage() {
         <div className="space-y-8">
             <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
                 <h1 className="text-2xl font-bold text-foreground">
-                    Welcome back, {user?.fullName?.split(" ")[0]}
+                    Welcome back, {user?.fullName}
                 </h1>
                 <p className="text-muted-foreground">
                     Join a Crime Box to access evidence or create a new one.
@@ -116,8 +189,10 @@ export default function DashboardPage() {
             <div className="grid gap-8 md:grid-cols-2">
                 {/* Left Column: Actions */}
                 <div className="space-y-6">
-                    {user?.role === "head_officer" && <CreateCrimeBox />}
-                    <JoinCrimeBox />
+                    {user?.role === "head_officer" && (
+                        <CreateCrimeBox onCreateSuccess={() => router.push(`/dashboard/${userId}/evidence`)} />
+                    )}
+                    <JoinCrimeBox onJoinSuccess={() => router.push(`/dashboard/${userId}/evidence`)} />
                 </div>
 
                 {/* Right Column: Stats & Overview */}
@@ -139,18 +214,22 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    {/* Placeholder for Recent Activity */}
-                    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-                        <h3 className="font-medium text-foreground mb-4">Recent System Activity</h3>
+                    {/* Recent Activity */}
+                    <div className="rounded-lg border border-border bg-card p-6">
+                        <h3 className="font-medium text-foreground mb-4">Recent Activity</h3>
                         <div className="space-y-4">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="flex items-start gap-3 text-sm">
-                                    <div className="mt-0.5 h-2 w-2 rounded-full bg-muted-foreground/50" />
-                                    <p className="text-muted-foreground">
-                                        <span className="font-medium text-foreground">Officer Chen</span> transferred Case #2024-{100 + i} to <span className="font-medium text-foreground">Storage B</span>.
-                                    </p>
-                                </div>
-                            ))}
+                            {recentActivity.length === 0 && !loading ? (
+                                <p className="text-sm text-muted-foreground italic">No recent activity.</p>
+                            ) : (
+                                recentActivity.map((log: any) => (
+                                    <div key={log.id} className="flex items-start gap-3 text-sm">
+                                        <div className="mt-0.5 h-2 w-2 rounded-full bg-muted-foreground/50" />
+                                        <p className="text-muted-foreground">
+                                            <span className="font-medium text-foreground">{log.actorName}</span> {log.action.replace(/_/g, " ")} <span className="font-medium text-foreground">{log.entityLabel || log.entityType}</span>.
+                                        </p>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>

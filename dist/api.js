@@ -11,7 +11,11 @@ import { readConfig, writeConfig } from "./server.js";
 import authRoutes from "./routes/auth.js";
 import evidenceRoutes from "./routes/evidence.js";
 import custodyRoutes from "./routes/custody.js";
+import boxRoutes from "./routes/boxes.js";
 import statRoutes from "./routes/stats.js";
+import caseRoutes from "./routes/cases.js";
+import evidenceExtrasRouter from "./routes/evidence-extras.js";
+import extrasRouter from "./routes/extras.js";
 // ---------------------------------------------------------------------------
 // Create Express app
 // ---------------------------------------------------------------------------
@@ -154,8 +158,12 @@ export function createApp() {
     // -------------------------------------------------------------------------
     app.use("/api/v1/auth", authRoutes);
     app.use("/api/v1/evidence", evidenceRoutes);
+    app.use("/api/v1/evidence/:evidenceId", evidenceExtrasRouter);
     app.use("/api/v1/custody", custodyRoutes);
+    app.use("/api/v1/boxes", boxRoutes);
     app.use("/api/v1/stats", statRoutes);
+    app.use("/api/v1/cases", caseRoutes);
+    app.use("/api/v1", extrasRouter);
     // -------------------------------------------------------------------------
     // Global error handler
     // -------------------------------------------------------------------------

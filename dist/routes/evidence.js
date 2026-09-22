@@ -40,7 +40,8 @@ async (req, res) => {
     const multerReq = req;
     try {
         // Multipart form data fields are strings, need to parse if JSON
-        const { caseId, type, description, collectionDate, location, tags, // might come as stringified JSON or plain text
+        const caseId = req.body.caseId?.trim();
+        const { type, description, collectionDate, location, tags, // might come as stringified JSON or plain text
         status, officerNotes, } = req.body;
         // Validate required fields
         if (!caseId || !type || !description || !collectionDate || !location) {
@@ -187,31 +188,47 @@ router.get("/", authenticate, async (req, res) => {
         // -----------------------------------------------------------------------
         const user = req.user;
         const canViewAll = ["admin", "auditor"].includes(user.role);
+        console.log(`[GET /evidence] User: ${user.username} (${user.role}), CaseID Filter: ${caseId || "NONE"}`);
         if (!canViewAll) {
             // Users can only see evidence they collected OR currently hold
-            // We combine this with existing filters using AND logic if needed,
-            // but since 'where' is an object, we need to be careful not to overwrite OR from search.
-            const accessFilter = {
-                OR: [
-                    { collectedById: user.id },
-                    { currentCustodianId: user.id }
-                ]
-            };
-            if (where.OR) {
-                // If we already have an OR for search, we need to wrap everything in an AND
-                where.AND = [
-                    accessFilter,
-                    { OR: where.OR }
-                ];
-                delete where.OR; // Move search OR inside AND
+            // UNLESS they are querying a specific Crime Box (Case ID).
+            // Since membership is client-side key-based in this MVP, we trust knowledge of the caseId.
+            if (caseId) {
+                // User is querying a specific box. Allow it if they know the ID.
+                // We strictly filter by this caseId.
+                where.caseId = caseId;
+                console.log(`[GET /evidence] Accessing Box: ${caseId} (Allowed)`);
             }
             else {
-                where.OR = accessFilter.OR;
+                // User is viewing their personal evidence log (no box context).
+                // Restrict to what they collected or hold.
+                const accessFilter = {
+                    OR: [
+                        { collectedById: user.id },
+                        { currentCustodianId: user.id }
+                    ]
+                };
+                if (where.OR) {
+                    // If we already have an OR for search, we need to wrap everything in an AND
+                    where.AND = [
+                        accessFilter,
+                        { OR: where.OR }
+                    ];
+                    delete where.OR; // Move search OR inside AND
+                }
+                else {
+                    where.OR = accessFilter.OR;
+                }
+                console.log(`[GET /evidence] Personal Log Access (Restricted to Owner/Custodian)`);
             }
+        }
+        else {
+            console.log(`[GET /evidence] Admin Access (View All)`);
         }
         const pageNum = Math.max(1, parseInt(page, 10));
         const pageSize = Math.min(100, Math.max(1, parseInt(limit, 10)));
         const skip = (pageNum - 1) * pageSize;
+        console.log(`[GET /evidence] Prisma Where Clause:`, JSON.stringify(where, null, 2));
         const [evidence, total] = await Promise.all([
             prisma.evidence.findMany({
                 where,

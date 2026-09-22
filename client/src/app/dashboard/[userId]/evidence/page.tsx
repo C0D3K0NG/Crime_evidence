@@ -119,15 +119,15 @@ export default function EvidenceListPage() {
                             <tbody className="divide-y divide-border">
                                 {evidence.map((item) => (
                                     <tr key={item.id} className="group hover:bg-muted/50 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-foreground">
-                                            {item.caseId}
+                                        <td className="px-6 py-4 font-medium text-foreground text-sm max-w-[120px] truncate" title={item.caseId}>
+                                            {item.caseId.substring(0, 8)}...
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={cn(
-                                                "inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-md",
-                                                item.type === "Physical" && "bg-blue-500/10 text-blue-400",
-                                                item.type === "Digital" && "bg-purple-500/10 text-purple-400",
-                                                item.type === "Testimonial" && "bg-amber-500/10 text-amber-400"
+                                                "inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-md capitalize",
+                                                item.type.toLowerCase() === "physical" && "bg-blue-500/10 text-blue-400",
+                                                item.type.toLowerCase() === "digital" && "bg-purple-500/10 text-purple-400",
+                                                item.type.toLowerCase() === "testimonial" && "bg-amber-500/10 text-amber-400"
                                             )}>
                                                 {item.type}
                                             </span>
@@ -136,7 +136,16 @@ export default function EvidenceListPage() {
                                             {item.description}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-xs font-medium text-foreground capitalize">{item.status}</span>
+                                            <span className={cn(
+                                                "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize border",
+                                                item.status.toLowerCase() === "collected" && "border-blue-500/20 bg-blue-500/10 text-blue-400",
+                                                item.status.toLowerCase() === "in-custody" && "border-amber-500/20 bg-amber-500/10 text-amber-400",
+                                                item.status.toLowerCase() === "analyzed" && "border-purple-500/20 bg-purple-500/10 text-purple-400",
+                                                item.status.toLowerCase() === "secured" && "border-green-500/20 bg-green-500/10 text-green-400",
+                                                item.status.toLowerCase() === "archived" && "border-slate-500/20 bg-slate-500/10 text-slate-400"
+                                            )}>
+                                                {item.status}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-muted-foreground text-sm">
                                             {item.currentCustodian?.fullName || "—"}

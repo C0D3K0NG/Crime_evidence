@@ -1,0 +1,108 @@
+=============================================================================
+CRIME EVIDENCE MANAGEMENT SYSTEM
+Architecture & User Guide
+=============================================================================
+
+This document provides a comprehensive overview of the BlockEvidence (Crime Evidence Management System) application. It covers the technical architecture, how the various technologies work together, and a detailed guide on the dashboard features and their specific use cases.
+
+-----------------------------------------------------------------------------
+1. SYSTEM ARCHITECTURE & TECHNOLOGY STACK
+-----------------------------------------------------------------------------
+
+The application follows a modern Client-Server architecture, utilizing a RESTful API backend and a dynamic, client-rendered frontend.
+
+# A. Frontend (Client)
+- Framework: Next.js (React) running in Single Page Application (SPA) / Client-side rendering mode ("use client" directives heavily utilized).
+- Styling: Tailwind CSS for utility-first, rapid UI development.
+- Animations: GSAP (GreenSock) and Framer Motion for complex, high-performance animations, scroll-triggered effects, and seamless page transitions.
+- State Management: React Context API.
+  - `AuthContext`: Manages JWT tokens, user sessions, and login state.
+  - `CrimeBoxContext`: Manages the currently "active" Crime Box and the user's permissions (read-write vs. read-only) within that box.
+- HTTP Client: Axios for making API requests to the backend with Bearer Token authentication.
+- Icons & UI Elements: Lucide React for consistent iconography and Lottie for complex vector animations (e.g., the fingerprint scanner).
+
+# B. Backend (Server)
+- Framework: Node.js with Express.js acting as a REST API server.
+- Database: SQLite (`dev.db`) used for development and local storage.
+- ORM (Object-Relational Mapping): Prisma. It provides a type-safe database client and manages schema migrations.
+- Authentication: 
+  - JWT (JSON Web Tokens) for stateless authentication.
+  - bcryptjs for secure password hashing.
+- File Storage: Multer is used to handle `multipart/form-data` for file uploads (e.g., photos of physical evidence or digital files). Files are stored locally in the `uploads/` directory, while metadata is saved in the database.
+- Cryptography/Integrity: Node's native `crypto` module is used to generate SHA-256 hashes of files upon upload, ensuring tamper-evidence.
+
+# C. Security & Dynamic RBAC (Role-Based Access Control)
+Unlike traditional systems with hardcoded roles (e.g., `if (user.role === 'admin')`), this system uses a configuration-driven RBAC model defined in `demo_config.json`.
+- When an API endpoint requires a specific action (e.g., `requirePermission("manage_cases")`), the middleware dynamically checks the configuration file.
+- This means permissions can be granted or revoked globally without altering source code.
+
+-----------------------------------------------------------------------------
+2. CORE CONCEPTS
+-----------------------------------------------------------------------------
+
+# Crime Boxes
+A "Crime Box" is a secure digital container for evidence related to a specific incident.
+- Conceptually, it mirrors a physical evidence locker.
+- It is secured via mock Public/Private keys. 
+- Officers need the Private Key to join the box with "read-write" access (to upload and modify evidence).
+- Lawyers or Judges can be given the Public Key to join the box with "read-only" access (to review evidence without risking tampering).
+
+# Chain of Custody
+Every action taken on an item of evidence (creation, modification, transferring custody) is logged immutably. Custody transfers require the current custodian to initiate a transfer and provide a reason, ensuring an unbroken, auditable trail.
+
+-----------------------------------------------------------------------------
+3. DASHBOARD OPTIONS & USE CASES
+-----------------------------------------------------------------------------
+When a user logs in, they are presented with a Sidebar containing the following options. Access to these options and the data within them is scoped based on the user's Role and their Active Crime Box.
+
+1. Dashboard (Overview)
+   - Use Case: A high-level summary of the user's active workload.
+   - Features: Displays quick metrics (Total Evidence, Open Cases, Pending Transfers). It also features a "Crime Box Panel" where users can Create a new box or Join an existing one using a cryptographic key.
+
+2. Cases
+   - Use Case: Organizing high-level incidents. A single case can contain multiple Crime Boxes.
+   - Features: 
+     - Create new cases (Requires `manage_cases` permission).
+     - View a list of cases. Users only see cases they created or cases containing evidence they are involved with (unless they are an Admin/Auditor, who see all).
+     - Clicking a case reveals the Crime Boxes linked to it.
+
+3. Evidence
+   - Use Case: The core registry of all digital and physical items.
+   - Features:
+     - Search and filter evidence.
+     - "Log New Item" button: Used to register new evidence (requires `read-write` access in an active Crime Box). Allows uploading files, setting tags, and documenting locations.
+     - View Evidence Details: Shows the full Chain of Custody timeline, attached files (with download options), officer comments, and lab results.
+     - Transfer Custody: Initiate a hand-off of the evidence to another registered user.
+
+4. Custody (Transfers)
+   - Use Case: Managing the flow of evidence between personnel (e.g., Officer to Lab Technician).
+   - Features: Lists pending incoming and outgoing custody transfer requests. Users can accept or reject transfers here, which updates the Chain of Custody log on the specific evidence item.
+
+5. Analytics
+   - Use Case: For department heads and admins to track system usage and crime trends.
+   - Features: Displays charts (via Recharts) showing evidence collected over time, status breakdowns, and departmental metrics.
+
+6. Activity Log
+   - Use Case: System auditing and accountability.
+   - Features: A chronological feed of every action taken in the system (logins, evidence creation, views, transfers). It serves as the digital paper trail required for legal compliance.
+
+7. Notifications
+   - Use Case: Alerts users to actionable items.
+   - Features: Informs users when a custody transfer is requested of them, when a case status changes, or when access requests are approved/denied.
+
+-----------------------------------------------------------------------------
+4. HOW THE DATA FLOW WORKS (Example: Logging Evidence)
+-----------------------------------------------------------------------------
+
+1. Join a Box: Officer Dave logs in. He goes to the Dashboard and enters the Private Key for "Box #404". The `CrimeBoxContext` verifies the key via the API and sets `activeBox` to Box #404 in the React state.
+2. Navigate to Evidence: Dave clicks "Evidence". The frontend sends a `GET /api/v1/evidence` request, passing `caseId=Box404_ID`. The backend returns only the evidence inside that box.
+3. Log Item: Dave clicks "Log New Item". He fills out the form and uploads a CCTV MP4 file.
+4. API Request: The frontend sends a `POST /api/v1/evidence` request with `multipart/form-data`.
+5. Backend Processing:
+   - Auth Middleware checks Dave's JWT.
+   - RBAC Middleware checks if Dave's role has the `register_evidence` permission.
+   - Multer saves the MP4 to the `/uploads` directory.
+   - Prisma creates a new `Evidence` record in the database, setting Dave as the `collectedById` and `currentCustodianId`.
+   - Prisma creates a new `EvidenceFile` record linked to the Evidence.
+   - Prisma creates an `AccessLog` entry recording the creation.
+6. Result: The frontend receives a 201 Created response, redirects Dave back to the Evidence list, and the new item appears seamlessly.

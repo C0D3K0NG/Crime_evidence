@@ -160,7 +160,8 @@
         "user_management",
         "system_configuration",
         "network_administration",
-        "manage_cases"
+        "manage_cases",
+        "register_evidence"
       ]
     },
     {

@@ -72,6 +72,7 @@ export default function DashboardPage() {
         totalEvidence: 0,
         pendingTransfers: 0,
     });
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const params = useParams();
@@ -80,13 +81,15 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // Mock stats if API fails or for demo
-                const res = await axios.get("/api/v1/stats").catch(() => ({
-                    data: { totalEvidence: 12, pendingTransfers: 3 }
-                }));
-                setStats(res.data);
+                // Fetch stats and recent activity in parallel
+                const [statsRes, activityRes] = await Promise.all([
+                    axios.get("/api/v1/stats").catch(() => ({ data: { totalEvidence: 0, pendingTransfers: 0 } })),
+                    axios.get("/api/v1/activity?limit=3").catch(() => ({ data: { logs: [] } }))
+                ]);
+                setStats(statsRes.data);
+                setRecentActivity(activityRes.data.logs || []);
             } catch (error) {
-                console.error("Failed to fetch dashboard stats", error);
+                console.error("Failed to fetch dashboard data", error);
             } finally {
                 setLoading(false);
             }
@@ -173,7 +176,7 @@ export default function DashboardPage() {
         <div className="space-y-8">
             <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
                 <h1 className="text-2xl font-bold text-foreground">
-                    Welcome back, {user?.fullName?.split(" ")[0]}
+                    Welcome back, {user?.fullName}
                 </h1>
                 <p className="text-muted-foreground">
                     Join a Crime Box to access evidence or create a new one.
@@ -215,14 +218,18 @@ export default function DashboardPage() {
                     <div className="rounded-lg border border-border bg-card p-6">
                         <h3 className="font-medium text-foreground mb-4">Recent Activity</h3>
                         <div className="space-y-4">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="flex items-start gap-3 text-sm">
-                                    <div className="mt-0.5 h-2 w-2 rounded-full bg-muted-foreground/50" />
-                                    <p className="text-muted-foreground">
-                                        <span className="font-medium text-foreground">Officer Chen</span> transferred Case #2024-{100 + i} to <span className="font-medium text-foreground">Storage B</span>.
-                                    </p>
-                                </div>
-                            ))}
+                            {recentActivity.length === 0 && !loading ? (
+                                <p className="text-sm text-muted-foreground italic">No recent activity.</p>
+                            ) : (
+                                recentActivity.map((log: any) => (
+                                    <div key={log.id} className="flex items-start gap-3 text-sm">
+                                        <div className="mt-0.5 h-2 w-2 rounded-full bg-muted-foreground/50" />
+                                        <p className="text-muted-foreground">
+                                            <span className="font-medium text-foreground">{log.actorName}</span> {log.action.replace(/_/g, " ")} <span className="font-medium text-foreground">{log.entityLabel || log.entityType}</span>.
+                                        </p>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>

@@ -167,15 +167,24 @@ export default function EvidenceDetailPage() {
                         <h1 className="text-3xl font-bold text-foreground">{evidence.caseId}</h1>
                         <p className="flex items-center gap-2 text-sm text-muted-foreground">
                             <span className={cn(
-                                "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                                evidence.type === "Physical" && "bg-blue-500/10 text-blue-500",
-                                evidence.type === "Digital" && "bg-purple-500/10 text-purple-500",
-                                evidence.type === "Testimonial" && "bg-green-500/10 text-green-500"
+                                "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize",
+                                evidence.type.toLowerCase() === "physical" && "bg-blue-500/10 text-blue-500",
+                                evidence.type.toLowerCase() === "digital" && "bg-purple-500/10 text-purple-500",
+                                evidence.type.toLowerCase() === "testimonial" && "bg-green-500/10 text-green-500"
                             )}>
                                 {evidence.type}
                             </span>
                             <span>•</span>
-                            <span>{evidence.status}</span>
+                            <span className={cn(
+                                "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize border",
+                                evidence.status.toLowerCase() === "collected" && "border-blue-500/20 bg-blue-500/10 text-blue-400",
+                                evidence.status.toLowerCase() === "in-custody" && "border-amber-500/20 bg-amber-500/10 text-amber-400",
+                                evidence.status.toLowerCase() === "analyzed" && "border-purple-500/20 bg-purple-500/10 text-purple-400",
+                                evidence.status.toLowerCase() === "secured" && "border-green-500/20 bg-green-500/10 text-green-400",
+                                evidence.status.toLowerCase() === "archived" && "border-slate-500/20 bg-slate-500/10 text-slate-400"
+                            )}>
+                                {evidence.status}
+                            </span>
                         </p>
                     </div>
                 </div>
